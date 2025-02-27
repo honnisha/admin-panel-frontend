@@ -1,0 +1,19 @@
+// https://vuetifyjs.com/features/sass-variables/
+// @use 'vuetify/settings' with (
+//   $color-pack: false
+// );
+
+// https://vuetifyjs.com/en/features/sass-variables/#variable-api
+@use 'vuetify/settings' with (
+    $list-item-prepend-size: 10px,
+    $list-item-icon-margin-start: 10px,
+    $list-item-slim-spacer-width: 10px,
+    $table-row-height: 42px,
+    $list-item-padding: 4px 16px,
+    $alert-title-font-size: h6,
+    $tooltip-transition-enter-duration: 0ms,
+
+    $expansion-panel-title-min-height: 16px,
+    $expansion-panel-title-padding: 8px 12px,
+    $expansion-panel-active-title-min-height: 24px,
+);
