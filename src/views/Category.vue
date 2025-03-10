@@ -1,11 +1,18 @@
 <template>
-  <div>
-    {{ group }}/{{ category }} {{ categorySchema.type }}
-  </div>
+
+  <template v-if="categorySchema.type === 'table'">
+    <TableCategory :group="group" :category="category" :category-schema="categorySchema"/>
+  </template>
+
+  <template v-else>
+    Category type "{{ categorySchema.type }}" is not supported
+  </template>
+
 </template>
 
 <script>
 import { config_dataset } from '/src/utils/settings'
+import TableCategory from '/src/components/categories/TableCategory.vue'
 
 export default {
   props: {
@@ -16,6 +23,7 @@ export default {
     category: {type: String, required: true},
   },
   components: {
+    TableCategory,
   },
   data() {
     return {

@@ -4,7 +4,7 @@ import { config_dataset } from '/src/utils/settings'
 
 import request from '/src/utils/request'
 
-export async function sendData(url, method, formData, relationNameFilter, filterId) {
+export async function sendData(viewname, method, formData, relationNameFilter, filterId) {
   return new Promise((resolve, reject) => {
     let urlsParams = {}
     

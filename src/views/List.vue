@@ -58,9 +58,13 @@
       <template
         v-for="(header, index) in headers"
         v-slot:[`item.${header.key}`]="{ item }"
+        v-bind:key="index"
       >
 
-        <div @click="handleClick(index, item)" :class="{ 'table-cell': true, 'table-link': index === 0 && canRetrieve() }">
+        <div
+          @click="handleClick(index, item)"
+          :class="{ 'table-cell': true, 'table-link': index === 0 && canRetrieve() }"
+        >
 
           <template v-if="header.field.type === 'primary'">
             <v-tooltip v-if="item[header.key]">
@@ -73,7 +77,7 @@
 
           <template v-else-if="header.field.type === 'primarymany'">
             <template v-if="item[header.key]">
-              <v-chip v-for="tag in item[header.key]" size="small">{{ tag.text }}</v-chip>
+              <v-chip v-for="tag in item[header.key]" size="small" v-bind:key="tag">{{ tag.text }}</v-chip>
             </template>
           </template>
 

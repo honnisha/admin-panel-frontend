@@ -16,24 +16,27 @@
     </div>
 
     <div
-      v-for="(filter, filter_name) in filtersetFields" v-if="filtersetFields"
+      v-for="(filter, filter_name) in filtersetFields"
+      v-bind:key="filter_name"
       class="filter-element"
     >
-      <component
-        v-if="getFieldComponent(filter)"
-        :is="getFieldComponent(filter)"
+      <template v-if="filtersetFields">
+        <component
+          v-if="getFieldComponent(filter)"
+          :is="getFieldComponent(filter)"
 
-        density="compact"
-        variant="solo"
-        :viewname="viewname"
-        :field="filter"
-        :field-slug="filter_name"
-        :loading="false"
-        :is-filter="true"
+          density="compact"
+          variant="solo"
+          :viewname="viewname"
+          :field="filter"
+          :field-slug="filter_name"
+          :loading="false"
+          :is-filter="true"
 
-        @changed="value => _updateValue(value, filter_name)"
-        @keydown.enter.prevent="applyFilter"
-      />
+          @changed="value => _updateValue(value, filter_name)"
+          @keydown.enter.prevent="applyFilter"
+        />
+      </template>
       <template v-else>
         {{ filter }}
       </template>
