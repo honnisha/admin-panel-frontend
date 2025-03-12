@@ -12,7 +12,7 @@
       </div>
 
       <div class="header-row-actions">
-        <div class="table-button">
+        <div class="table-button" v-if="canCreate()">
           Create
         </div>
         <div class="table-button">
@@ -147,7 +147,7 @@
             :base-color="action_info.base_color || 'secondary'"
             @click="pressAction(action_info, key)"
           >
-            {{ action_info.name }}
+            {{ action_info.title }}
           </v-btn>
         </template>
       </div>
@@ -181,13 +181,92 @@
 
     </div>
 
+    <v-dialog v-model="actionDialogConfirmation" max-width="500">
+      <v-card>
+
+        <v-card-title class="d-flex justify-space-between align-center">
+          <span>{{ $t('confirmation') }}: {{ getActionInfo().name }}</span>
+
+          <v-btn
+            icon="mdi-close"
+            variant="text"
+            density="compact"
+            @click="actionDialogConfirmation = false"
+          ></v-btn>
+        </v-card-title>
+
+        <v-card-text>
+          <p>{{ getActionInfo().confirmation_text }}</p>
+          <v-label class="info">{{ $t('selected') }} <p class="selected-count">{{ getSelectedCount()}}/{{ getTotalCount() }}</p></v-label>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn :text="$t('cancel')" variant="elevated" @click="actionDialogConfirmation = false"></v-btn>
+          <v-btn :text="$t('confirm')" variant="tonal" color="primary" @click="applyAction"></v-btn>
+        </v-card-actions>
+
+      </v-card>
+    </v-dialog>
+
+    <v-dialog persistent v-model="actionFormDialogOpen" max-width="1200">
+      <v-card>
+
+        <v-card-title class="d-flex justify-space-between align-center">
+          <span>{{ getActionInfo().name }}</span>
+
+          <v-btn
+            icon="mdi-close"
+            variant="text"
+            density="compact"
+            @click="actionFormDialogOpen = false"
+          ></v-btn>
+        </v-card-title>
+
+        <div class="action-description" v-html="getActionInfo().description"></div>
+
+        <FieldsContainer
+          ref="fieldscontainer"
+          formType="create"
+          :api-info="apiInfo"
+          :form-schema="getActionInfo().form_schema"
+          :loading="actionLoading"
+          :action-name="actionSelected"
+
+          @changed="value => actionFormData = value"
+        />
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn :text="$t('cancel')" variant="elevated" @click="actionFormDialogOpen = false"></v-btn>
+          <v-btn :text="$t('send')" variant="tonal" color="primary" @click="applyAction"></v-btn>
+        </v-card-actions>
+
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="persistentMessageDialog" max-width="1200">
+      <v-card>
+
+        <v-card-text v-html="persistentMessage"></v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn :text="$t('close')" variant="elevated" @click="persistentMessageDialog = false"></v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
   </div>
 </template>
 
 <script>
 import { CategorySchema } from '/src/api/scheme'
 import { getSettings, setSettings } from '/src/utils/settings'
-import { getDataList } from '/src/api/table'
+import { getDataList, sendTableAction, downloadContent } from '/src/api/table'
+import moment from 'moment'
 import { toast } from "vue3-toastify"
 
 export default {
@@ -209,6 +288,16 @@ export default {
         search: null,
         filters: {},
       },
+
+      actionToAll: false,
+      actionFormData: null,
+      actionDialogConfirmation: false,
+      actionFormDialogOpen: false,
+      actionSelected: null,
+      actionLoading: false,
+
+      persistentMessageDialog: false,
+      persistentMessage: null,
     }
   },
   created() {
@@ -255,8 +344,11 @@ export default {
     getTotalCount() {
       return this.pageData.count || 0
     },
+    canCreate() {
+      return this.categorySchema.getTableInfo().can_create
+    },
     canRetrieve() {
-      return true
+      return this.categorySchema.getTableInfo().can_retrieve
     },
     handleClick(index, row) {
       if (index == 0 && this.canRetrieve()) {
@@ -314,9 +406,6 @@ export default {
 
         group: this.group,
         category: this.category,
-
-        relationNameFilter: this.relationNameFilter,
-        filterId: this.filterId,
       }).then(responseData => {
         this.pageData = responseData
         this.loading = false
@@ -354,6 +443,82 @@ export default {
     },
     getPagesLength() {
       return Math.ceil((this.pageData.count || 0) / this.pageInfo.limit)
+    },
+    pressAction(actionInfo, actionKey) {
+      if (!actionInfo.allow_empty_selection && !this.actionToAll && this.selected.length === 0) {
+        toast(this.$t('actionNotAllowEmptySelection'), {
+          "limit": 3, "theme": "auto", "type": "warning", "position": "top-center",
+        })
+        return
+      }
+
+      this.actionFormData = null
+      this.actionMeta = null
+      this.actionSelected = actionKey
+
+      // Action form
+      if (actionInfo.form_schema) {
+        this.actionFormDialogOpen = true
+      } else {
+        // Confirmation window
+        if (actionInfo.confirmation_text) {
+          this.actionDialogConfirmation = true
+        }
+        else {
+          this.applyAction()
+        }
+      }
+    },
+    getActionInfo() {
+      return this.categorySchema.getTableInfo().actions[this.actionSelected]
+    },
+    applyAction() {
+      this.actionLoading = false
+      sendTableAction({
+        group: this.group,
+        category: this.category,
+
+        action: this.actionSelected,
+        pks: this.selected,
+        formData: this.actionFormData || {},
+        sendToAll: this.actionToAll,
+        filters: this.filterInfo,
+      }).then(response => {
+
+        if(response.headers['content-type'] !== 'application/json') {
+          const fileName = response.headers['pragma'] || `${moment().format('DD.MM.YYYY_HH:MM')}.csv`
+          downloadContent(
+            response.data, fileName, response.headers['content-type']
+          )
+        }
+        else {
+          if (response.data.message) {
+            toast(response.data.message.text, {
+              "type": response.data.message.type,
+              "position": response.data.message.position,
+              "dangerouslyHTMLString": true
+            })
+          }
+          else if (response.data.persistent_message) {
+            this.persistentMessageDialog = true
+            this.persistentMessage = response.data.persistent_message
+          }
+          else {
+            toast('Success')
+          }
+        }
+
+        this.actionDialogConfirmation = false
+        this.actionFormDialogOpen = false
+        this.actionLoading = false
+        this.selected = []
+        this.getListData()
+      }).catch(response => {
+        this.actionLoading = false
+        if (response.data) {
+          this.$refs.fieldscontainer.updateErrors(response.data)
+        }
+      })
     },
   },
 }

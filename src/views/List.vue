@@ -283,7 +283,6 @@ import { getViewsetsSettings } from '/src/utils/settings'
 import moment from 'moment'
 import { toast } from "vue3-toastify"
 import { getSettings, setSettings, config_dataset } from '/src/utils/settings'
-import { sendAction, downloadContent } from '/src/api/sendAction'
 
 import ModelFormCreate from '/src/components/ModelFormCreate.vue'
 import PageSettings from '/src/components/PageSettings.vue'
@@ -331,6 +330,7 @@ export default {
       },
       sectionData: null,
       apiMethods: null,
+
 
       actionToAll: false,
       actionFormData: null,
