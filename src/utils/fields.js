@@ -1,9 +1,11 @@
 export const defaultProps = {
+  group: {type: String, required: false},
+  category: {type: String, required: false},
+
   variant: {type: String, required: true},
   density: {type: String, required: true},
   field: {type: Object, required: true},
   fieldSlug: {type: String, required: true},
-  viewname: {type: String, required: false},
   loading: {type: Boolean, required: true},
   isFilter: {type: Boolean, required: false},
   readOnly: {type: Boolean, required: false},
@@ -14,7 +16,7 @@ export const defaultProps = {
 }
 
 const baseFields = {
-  type: {type: String, required: true},
+  _slug: {type: String, required: true},
   required: {type: Boolean, required: false},
   label: {type: String, required: true},
   help_text: {type: String, required: false},
@@ -36,11 +38,11 @@ export function validateProps(comp, compReqFields) {
     const setting = comp.field[fieldName]
 
     if (!setting && fieldSettings.required) {
-      console.error(`Field ${comp.viewname}.${comp.fieldSlug} field ${comp.field.type} attribute not found: "${fieldName}"`)
+      console.error(`Field ${comp.category}.${comp.fieldSlug} type ${comp.field._slug} attribute not found: "${fieldName}"`)
     }
 
     if (setting && setting.type && !(fieldSettings instanceof setting.type)) {
-      console.error(`Field ${comp.viewname}.${comp.fieldSlug} type ${typeof fieldSettings} is not ${setting.type}`)
+      console.error(`Field ${comp.category}.${comp.fieldSlug} type ${typeof fieldSettings} is not ${setting.type}`)
     }
   }
 }

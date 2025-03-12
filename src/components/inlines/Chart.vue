@@ -58,7 +58,6 @@
 <script>
 import { toast } from "vue3-toastify"
 import { Line as ChartLine, Bar, Bubble, Doughnut, Pie, PolarArea, Radar, Scatter } from "vue-chartjs";
-import { getList } from "/src/api/getList"
 import Filters from '/src/components/Filters.vue'
 
 import {

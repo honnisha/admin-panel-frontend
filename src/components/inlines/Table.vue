@@ -87,7 +87,6 @@
 <script>
 import { getSettings, setSettings } from '/src/utils/settings'
 import { toast } from "vue3-toastify"
-import { getList } from '/src/api/getList'
 
 export default {
   props: {

@@ -67,7 +67,6 @@
 <script>
 // A component for displaying a button that causes a form to be opened to create a model.
 
-import { sendData } from '/src/api/sendData'
 import { toast } from "vue3-toastify"
 
 import FieldsContainer from '/src/components/FieldsContainer.vue'

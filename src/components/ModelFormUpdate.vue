@@ -26,8 +26,6 @@
 </template>
 
 <script>
-import { getDetail } from '/src/api/getDetail'
-import { sendData } from '/src/api/sendData'
 import { toast } from "vue3-toastify"
 
 export default {

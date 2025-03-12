@@ -282,7 +282,6 @@
 import { getViewsetsSettings } from '/src/utils/settings'
 import moment from 'moment'
 import { toast } from "vue3-toastify"
-import { getList } from '/src/api/getList'
 import { getSettings, setSettings, config_dataset } from '/src/utils/settings'
 import { sendAction, downloadContent } from '/src/api/sendAction'
 

@@ -1,8 +1,11 @@
 import request from '/src/utils/request'
-import { getLang } from '/src/utils/auth'
 import { config_dataset } from '/src/utils/settings'
+import { getLang } from '/src/utils/auth'
 
-export function getList(kwargs) {
+const tableDataListUrl = config_dataset.backend_prefix + 'table/{group}/{category}/'
+const tableDataListRetrive = config_dataset.backend_prefix + 'table/{group}/{category}/{pk}/'
+
+export function getDataList(kwargs) {
   return new Promise((resolve, reject) => {
     let urlsParams = JSON.parse(JSON.stringify(kwargs.pageInfo || {}))
 
@@ -18,8 +21,8 @@ export function getList(kwargs) {
       urlsParams.inline_action = kwargs.inline_action
     }
 
-    if (kwargs.filter_info) {
-      urlsParams.filter_info = encodeURIComponent(JSON.stringify(kwargs.filter_info))
+    if (kwargs.filters) {
+      urlsParams.filters = encodeURIComponent(JSON.stringify(kwargs.filters))
     }
 
     let params = new URLSearchParams()
@@ -33,24 +36,30 @@ export function getList(kwargs) {
       }
     }
 
-    // For format {"pk": int, "text": String}
-    params.append('full_relations', true);
-
-    const fillUrl = `${kwargs.url}?${params.toString()}`
+    const url = tableDataListUrl.replace('{group}', kwargs.group).replace('{category}', kwargs.category)
+    const fillUrl = `${url}?${params.toString()}`
     request({
       url: fillUrl,
-      method: kwargs.method,
+      method: 'GET',
       headers: {
         'Accept-Language': getLang(),
       },
       timeout: config_dataset.api_timeout_ms,
     }).then(response => {
-      if (kwargs.inline_action) {
-        resolve(response)
-        return
-      }
-
       resolve(response.data)
+    }).catch(error => reject(error))
+  })
+}
+
+export function getTableRetrieve(kwargs) {
+  return new Promise((resolve, reject) => {
+    const url = tableDataListRetrive.replace('{pk}', kwargs.pk)
+    request({
+      url: url,
+      method: 'GET',
+      timeout: config_dataset.api_timeout_ms,
+    }).then(response => {
+      resolve(response)
     }).catch(error => reject(error))
   })
 }

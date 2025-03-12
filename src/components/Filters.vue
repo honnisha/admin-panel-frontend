@@ -2,7 +2,7 @@
 
   <div class="filters-container">
 
-    <div class="filter-element" v-if="searchFields">
+    <div class="filter-element" v-if="getTableInfo().search">
       <v-text-field
         density="compact"
         variant="solo"
@@ -16,30 +16,28 @@
     </div>
 
     <div
-      v-for="(filter, filter_name) in filtersetFields"
+      v-for="(filter, filter_name) in getTableInfo().table_filters"
       v-bind:key="filter_name"
       class="filter-element"
     >
-      <template v-if="filtersetFields">
-        <component
-          v-if="getFieldComponent(filter)"
-          :is="getFieldComponent(filter)"
+      <component
+        v-if="getFieldComponent(filter)"
+        :is="getFieldComponent(filter)"
 
-          density="compact"
-          variant="solo"
-          :viewname="viewname"
-          :field="filter"
-          :field-slug="filter_name"
-          :loading="false"
-          :is-filter="true"
+        density="compact"
+        variant="solo"
 
-          @changed="value => _updateValue(value, filter_name)"
-          @keydown.enter.prevent="applyFilter"
-        />
-      </template>
-      <template v-else>
-        {{ filter }}
-      </template>
+        :group="group"
+        :category="category"
+
+        :field="filter"
+        :field-slug="filter_name"
+        :loading="false"
+        :is-filter="true"
+
+        @changed="value => _updateValue(value, filter_name)"
+        @keydown.enter.prevent="applyFilter"
+      />
     </div>
 
     <!--
@@ -68,6 +66,7 @@
 </template>
 
 <script>
+import { CategorySchema } from '/src/api/scheme'
 import BooleanFilter from '/src/components/fields/BooleanFilter.vue'
 import StringField from '/src/components/fields/String.vue'
 import NumberField from '/src/components/fields/Number.vue'
@@ -77,12 +76,13 @@ import DateTimeField from '/src/components/fields/DateTime.vue'
 
 export default {
   props: {
-    settings: {type: Object, required: true},
-    searchFields: {type: Object, required: false},
-    filtersetFields: {type: Object, required: true},
-    filterInfoInit: {type: Object, required: false},
-    viewname: {type: String, required: false},
+    group: {type: String, required: true},
+    category: {type: String, required: true},
+
+    categorySchema: {type: CategorySchema, required: true},
     loading: {type: Boolean, required: false},
+
+    filterInfoInit: {type: Object, required: false},
   },
   emits: ["filtered"],
   data() {
@@ -96,6 +96,9 @@ export default {
     }
   },
   methods: {
+    getTableInfo() {
+      return this.categorySchema.getTableInfo()
+    },
     getFieldComponent(filter) {
       const related = [
         'ForeignKey',
@@ -117,21 +120,13 @@ export default {
         'TimeFilter',
       ]
 
-      if (['ChoiceFilter'].indexOf(filter.type) !== -1 || filter.choices) return ChoiceField
+      if (['ChoiceFilter'].indexOf(filter._slug) !== -1 || filter.choices) return ChoiceField
 
-      const str = [
-        'GenericIPAddressField',
-        'TextField',
-        'UUIDField',
-        'CharFilter',
-        'CharField',
-      ]
-      if (datetime.indexOf(filter.type) !== -1) return DateTimeField
-      if (related.indexOf(filter.type) !== -1) return RelatedField
-      if (str.indexOf(filter.type) !== -1) return StringField
-
-      if (['NumberFilter'].indexOf(filter.type) !== -1) return NumberField
-      if (['BooleanField', 'BooleanFilter'].indexOf(filter.type) !== -1) return BooleanFilter
+      if (datetime.indexOf(filter._slug) !== -1) return DateTimeField
+      if (related.indexOf(filter._slug) !== -1) return RelatedField
+      if (['string'].indexOf(filter._slug) !== -1) return StringField
+      if (['integer'].indexOf(filter._slug) !== -1) return NumberField
+      if (['boolean'].indexOf(filter._slug) !== -1) return BooleanFilter
     },
     _updateValue(value, filter_name) {
       this.filterInfo.filters[filter_name] = value
