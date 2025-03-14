@@ -16,7 +16,7 @@ export const defaultProps = {
 }
 
 const baseFields = {
-  _slug: {type: String, required: true},
+  type: {type: String, required: true},
   required: {type: Boolean, required: false},
   label: {type: String, required: true},
   help_text: {type: String, required: false},
@@ -38,7 +38,7 @@ export function validateProps(comp, compReqFields) {
     const setting = comp.field[fieldName]
 
     if (!setting && fieldSettings.required) {
-      console.error(`Field ${comp.category}.${comp.fieldSlug} type ${comp.field._slug} attribute not found: "${fieldName}"`)
+      console.error(`Field ${comp.category}.${comp.fieldSlug} type ${comp.field.type} attribute not found: "${fieldName}"`)
     }
 
     if (setting && setting.type && !(fieldSettings instanceof setting.type)) {

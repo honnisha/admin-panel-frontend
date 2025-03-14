@@ -85,6 +85,10 @@
     flex-direction: row;
     justify-content: end;
     align-items: center;
+
+    .model-form-button {
+        padding-left: 10px;
+    }
 }
 
 .editor-image-preview {

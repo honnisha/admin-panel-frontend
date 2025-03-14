@@ -17,11 +17,13 @@
       ></v-tab>
     </v-tabs>
 
-    <template v-if="errors" v-for="error in errors['non_field_errors']">
-      <v-alert
-        :text="error"
-        type="error"
-      ></v-alert>
+    <template v-if="errors">
+      <template v-for="error in errors['non_field_errors']" v-bind:key="error">
+        <v-alert
+          :text="error"
+          type="error"
+        ></v-alert>
+      </template>
     </template>
 
     <v-tabs-window v-model="tab" class="fields-content">
@@ -31,9 +33,9 @@
         :text="groupInfo.title"
         :eager="true"
       >
-        <div v-for="(field, field_slug) in serializer">
+        <div v-for="(field, field_slug) in tableSchema.fields" v-bind:key="field_slug">
 
-          <v-row class="fields-cell" v-if="canBeDisplayed(field, field_slug, tab_id) && !isTranslation(field_slug)">
+          <v-row class="fields-cell">
             <v-col cols="3">
               <v-list-subheader>
                 <p class="form-title">{{ field.label }}</p> <p v-if="field.required" class="required-title">*</p>
@@ -144,13 +146,13 @@ import RelatedField from '/src/components/fields/Related.vue'
 import DateTimeField from '/src/components/fields/DateTime.vue'
 
 import TinyMCEField from '/src/components/fields/TinyMCE/index.vue'
-import CKEditor from '/src/components/fields/CKEditor.vue'
+// import CKEditor from '/src/components/fields/CKEditor.vue'
 
 const wysiwyg = TinyMCEField;
 
 export default {
   props: {
-    adminSchema: {type: Object, required: true},
+    tableSchema: {type: Object, required: false},
     loading: {type: Boolean, required: false},
     readOnly: {type: Boolean, required: false},
     formType: {
@@ -160,15 +162,6 @@ export default {
           return ['create', 'edit'].indexOf(value) !== -1
       }
     },
-
-    // Required if no meta was provided
-    viewname: {type: String, required: false},
-    formSerializer: {type: Object, required: false},
-
-    relationNameFilter: {type: Object, required: false},
-    filterId: {type: Object, required: false},
-
-    actionName: {type: String, required: false},
   },
   emits: ["changed"],
   data() {
@@ -178,23 +171,10 @@ export default {
       formData: {},
       translationsTabs: {},
       fieldGroups: null,
-      serializer: null,
       translations: {},
     }
   },
   created() {
-    if (this.viewname) {
-      const meta = this.apiInfo[this.viewname].meta
-      this.serializer = meta.serializer
-      this.fieldGroups = meta.field_groups
-      this.translations = meta.translations || {}
-    }
-    else if (this.formSerializer) {
-      this.serializer = this.formSerializer
-    }
-    else {
-      console.log('viewname or formSerializer required')
-    }
   },
   methods: {
     getFieldComponent(field, field_slug) {
@@ -231,20 +211,6 @@ export default {
       }
       return false
     },
-    canBeDisplayed(field, field_slug, tab_id) {
-      if (this.formType === 'create') {
-        if (this.readOnly || field.read_only || field.update_only) return false
-      }
-      if (this.formType !== 'create' && field.create_only) {
-        return false
-      }
-      if (this.fieldGroups && this.fieldGroups !== null) {
-        const currentTabFields = this.fieldGroups[tab_id].fields
-        if (currentTabFields && !currentTabFields.includes(field_slug)) return false
-      }
-
-      return true
-    },
     getRefString(slug) {
       return `field_${slug}`
     },
@@ -255,7 +221,7 @@ export default {
       // Update form date from outside
       this.formData = newData
 
-      for (const [field_slug, value] of Object.entries(this.serializer)) {
+      for (const [field_slug, value] of Object.entries(this.tableSchema.fields)) {
         const ref = this.getRefString(field_slug)
         const field = this.$refs[ref]
 
@@ -269,7 +235,7 @@ export default {
 
       this.formData[field_slug] = value
 
-      for (const slug of Object.keys(this.serializer)) {
+      for (const slug of Object.keys(this.tableSchema.fields)) {
         const target_field = this.$refs[this.getRefString(slug)]
         if (target_field === undefined) continue
 

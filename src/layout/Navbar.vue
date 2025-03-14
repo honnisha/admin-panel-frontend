@@ -4,24 +4,25 @@
     :modelValue="drawer"
   >
     <v-list-item>
-      <router-link to="/dashboard" v-if="getLogo()">
+      <router-link to="/dashboard" class="logo-link">
         <v-img
+          v-if="getLogo()"
           class="project-logo"
           :alt="getTitle()"
           :src="getLogo()"
           max-width="250"
           :eager="true"
         />
+        <p class="text-h6" v-else>{{ getTitle() }}</p>
       </router-link>
-      <p class="text-h6" v-else>{{ getTitle() }}</p>
     </v-list-item>
 
     <v-divider></v-divider>
 
-    <v-list v-model:opened="open">
+    <v-list v-model:opened="openedGroups">
       <v-list-group
         v-for="(group, group_slug) in adminSchema.get_groups()"
-        :value="group.title"
+        :value="group_slug"
         :key="group_slug"
       >
         <template v-slot:activator="{ props }">
@@ -36,6 +37,9 @@
         <v-list-item
           class="navbar-link"
           v-for="(category, category_slug) in group.categories"
+
+          :active="isTabActive(group_slug, category_slug)"
+
           :key="category_slug"
           :prepend-icon="category.icon"
           :title="category.title"
@@ -60,13 +64,22 @@ export default {
   data() {
     return {
       drawer: null,
-      open: null,
+      openedGroups: [],
       categoryUrl: categoryUrl,
     }
   },
   created() {
+    this.openedGroups.push(this.$route.params.group)
+  },
+  watch: {
+    $route(to, from) {
+      this.openedGroups.push(to.params.group)
+    },
   },
   methods: {
+    isTabActive(group_slug, category_slug) {
+      return this.$route.params.group === group_slug && this.$route.params.category === category_slug
+    },
     getLogo() {
       return config_dataset.logo_image
     },

@@ -4,8 +4,8 @@
     <FieldsContainer
       ref="fieldscontainer"
       form-type="edit"
-      :api-info="apiInfo"
-      :viewname="viewname"
+      :table-schema="this.categorySchema.getTableInfo().table_schema"
+
       :loading="loading"
       :read-only="!canUpdate()"
 
@@ -13,32 +13,47 @@
     />
 
     <div class="model-form-bottom-actions">
-      <v-btn
-        v-if="canUpdate()"
-        :text="$t('update')"
-        variant="elevated"
-        color="primary"
-        @click="updateModel"
-      />
+      <div class="model-form-button">
+        <v-btn
+          v-if="canUpdate()"
+          :text="$t('update')"
+          variant="elevated"
+          color="primary"
+          @click="updateModel(true)"
+        />
+      </div>
+      <div class="model-form-button">
+        <v-btn
+          v-if="canUpdate()"
+          :text="$t('updateContinue')"
+          variant="elevated"
+          color="secondary"
+          @click="updateModel(false)"
+        />
+      </div>
     </div>
   </div>
 
 </template>
 
 <script>
+import { CategorySchema } from '/src/api/scheme'
+import { getTableRetrieve, sendTableUpdate } from '/src/api/table'
 import { toast } from "vue3-toastify"
+import FieldsContainer from '/src/components/table/FieldsContainer.vue'
 
 export default {
   props: {
-    apiInfo: {type: Object, required: true},
-    viewname: {type: String, required: true},
-    group: {type: String, required: false},
-    pk: {type: String, required: true},
+    adminSchema: {type: Object, required: true},
+    categorySchema: {type: CategorySchema, required: true},
+    pk: {type: String, required: false},
+  },
+  components: {
+    FieldsContainer,
   },
   emits: ["closed"],
   data() {
     return {
-      apiMethods: null,
       loading: true,
       formData: {},
     }
@@ -48,17 +63,17 @@ export default {
   },
   methods: {
     retrieveData() {
-      const method = this.apiMethods['retrieve']
-      if (!method) {
-        console.error(`retrieve method is not found in the list of available methods`)
+      if (!this.categorySchema.getTableInfo().can_retrieve) {
+        console.error(`retrieve method is not found`)
         return
       }
 
       this.loading = true
-      getDetail(method.url.replace("{pk}", this.pk),
-        method.methodHttp,
-        this.sectionData
-      ).then(response => {
+      getTableRetrieve({
+        group: this.categorySchema.group,
+        category: this.categorySchema.category,
+        pk: this.pk,
+      }).then(response => {
         this.loading = false
         this.formData = response.data
         this.$refs.fieldscontainer.updateFormData(response.data)
@@ -77,28 +92,28 @@ export default {
       })
     },
     canUpdate() {
-      return this.apiMethods['partial_update'] !== undefined
+      return this.categorySchema.getTableInfo().can_update
     },
-    updateModel() {
-      let method = this.apiMethods['partial_update']
-      if (!method) {
-        console.error(`partial_update method is not found in the list of available methods`)
+    updateModel(closeAfter) {
+      if (!this.canUpdate()) {
+        console.error(`This cetegory is not available for an update`)
         return
       }
 
       this.$refs.fieldscontainer.updateErrors({})
       this.loading = true
-      sendData(
-        method.url.replace("{pk}", this.pk),
-        method.methodHttp,
-        this.formData,
-      ).then(response => {
+      sendTableUpdate({
+        group: this.categorySchema.group,
+        category: this.categorySchema.category,
+        pk: this.pk,
+        data: this.formData,
+      }).then(response => {
         this.loading = false
-        if (response) {
-          let message = this.$t('modelUpdated').replace('{pk}', response.pk)
-          toast(message, {"theme": "auto", "type": "success", "position": "top-center"})
+        let message = this.$t('modelUpdated', {'pk': response.data.pk})
+        toast(message, {"theme": "auto", "type": "success", "position": "top-center"})
+        if (closeAfter) {
+          this.$emit('closed')
         }
-        this.$emit('closed')
       }).catch(error => {
         this.loading = false
         if (error.response) {

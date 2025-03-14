@@ -30,13 +30,27 @@ export function categoryUrl(group_slug, category_slug) {
   return `/${group_slug}/${category_slug}/`
 }
 
+export function detailUrl(group_slug, category_slug, pk) {
+  return `/${group_slug}/${category_slug}/${pk}/`
+}
+
 export class CategorySchema {
-  constructor(schema) {
+  constructor(schema, group_slug, category_slug) {
     this.schema = schema
+    this.group_slug = group_slug
+    this.category_slug = category_slug
   }
 
   get type() {
     return this.schema['type']
+  }
+
+  get group() {
+    return this.group_slug
+  }
+
+  get category() {
+    return this.category_slug
   }
 
   get title() {
@@ -58,7 +72,7 @@ export class AdminSchema {
     if (!group) {
       return
     }
-    return new CategorySchema(group.categories[category_slug])
+    return new CategorySchema(group.categories[category_slug], group_slug, category_slug)
   }
 
   get_groups() {

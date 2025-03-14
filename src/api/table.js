@@ -6,6 +6,8 @@ import moment from 'moment'
 
 const tableDataListUrl = config_dataset.backend_prefix + 'table/{group}/{category}/'
 const tableDataRetriveUrl = config_dataset.backend_prefix + 'table/{group}/{category}/retrive/{pk}/'
+const tableDataCreateUrl = config_dataset.backend_prefix + 'table/{group}/{category}/create/'
+const tableDataUpdateUrl = config_dataset.backend_prefix + 'table/{group}/{category}/update/{pk}/'
 const tableDataActionUrl = config_dataset.backend_prefix + 'table/{group}/{category}/action/{action}/'
 
 export function getDataList(kwargs) {
@@ -54,9 +56,23 @@ export function getDataList(kwargs) {
   })
 }
 
+export function getTableCreate(kwargs) {
+  return new Promise((resolve, reject) => {
+    const url = tableDataCreateUrl.replace('{group}', kwargs.group).replace('{category}', kwargs.category)
+    request({
+      url: url,
+      method: 'post',
+      data: kwargs.data,
+      timeout: config_dataset.api_timeout_ms,
+    }).then(response => {
+      resolve(response)
+    }).catch(error => reject(error))
+  })
+}
+
 export function getTableRetrieve(kwargs) {
   return new Promise((resolve, reject) => {
-    const url = tableDataRetriveUrl.replace('{pk}', kwargs.pk)
+    const url = tableDataRetriveUrl.replace('{group}', kwargs.group).replace('{category}', kwargs.category).replace('{pk}', kwargs.pk)
     request({
       url: url,
       method: 'GET',
@@ -77,6 +93,47 @@ export function downloadContent(data, fileName, type) {
   eElelent.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
   aElement.dispatchEvent(eElelent)
 }
+
+export async function sendTableUpdate(kwargs) {
+  return new Promise((resolve, reject) => {
+    const url = tableDataUpdateUrl.replace('{group}', kwargs.group).replace('{category}', kwargs.category).replace('{pk}', kwargs.pk)
+
+    request({
+      url: url,
+      method: 'patch',
+      data: kwargs.data,
+      headers: {
+        'Accept-Language': getLang(),
+      },
+      timeout: config_dataset.api_timeout_ms,
+    }).then(response => {
+      resolve(response)
+    }).catch(error => {
+      if (error.response) {
+        if (error.response.status == 400) {
+
+          if (error.response.data.action_messages) {
+            toast(error.response.data.action_messages.join('<br>'), {
+              "type": "error",
+              "position": "top-center",
+              "dangerouslyHTMLString": true
+            })
+          }
+          reject(error.response)
+        }
+        else if (error.response.status == 500) {
+          toast(`Error! Code: ${error.response.status}</br>Text: ${error.response.data}`, {
+            "type": "error",
+            "position": "top-center",
+            "dangerouslyHTMLString": true
+          })
+          reject(null)
+        }
+      }
+    })
+  })
+}
+
 
 export async function sendTableAction(kwargs) {
   return new Promise((resolve, reject) => {

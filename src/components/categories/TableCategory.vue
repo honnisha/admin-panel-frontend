@@ -2,7 +2,7 @@
   <div class="list-page">
 
     <div class="list-above-block">
-      <div class="header-row-filters">
+      <div class="header-row-filters" v-if="hasFilters()">
         <Filters
           :category-schema="categorySchema"
           :filter-info-init="filterInfo"
@@ -13,10 +13,15 @@
 
       <div class="header-row-actions">
         <div class="table-button" v-if="canCreate()">
-          Create
-        </div>
-        <div class="table-button">
-          Settings
+          <FormCreate
+            v-if="canCreate()"
+            :title="categorySchema.title"
+
+            :admin-schema="adminSchema"
+            :category-schema="categorySchema"
+
+            @created="createdEvent"
+          />
         </div>
       </div>
     </div>
@@ -48,7 +53,7 @@
           :class="{ 'table-cell': true, 'table-link': index === 0 && canRetrieve() }"
         >
 
-          <template v-if="header._slug === 'primary'">
+          <template v-if="header.type === 'primary'">
             <v-tooltip v-if="item[header.key]">
               #{{ item[header.key].pk }}
               <template v-slot:activator="{ props }">
@@ -57,18 +62,18 @@
             </v-tooltip>
           </template>
 
-          <template v-else-if="header._slug === 'primarymany'">
+          <template v-else-if="header.type === 'primarymany'">
             <template v-if="item[header.key]">
               <v-chip v-for="tag in item[header.key]" size="small" v-bind:key="tag">{{ tag.text }}</v-chip>
             </template>
           </template>
 
-          <template v-else-if="header._slug === 'boolean'">
+          <template v-else-if="header.type === 'boolean'">
             <v-icon color="green-darken-2" icon="mdi-check" size="small" v-if="item[header.key]"/>
             <v-icon color="red-darken-2" icon="mdi-close" size="small" v-else/>
           </template>
 
-          <template v-else-if="header._slug === 'choice'">
+          <template v-else-if="header.type === 'choice'">
             <template v-if="item[header.key] !== null && item[header.key] !== undefined">
               <template v-if="Object.keys(header.field.tag_style || {}).length > 0">
                 <v-chip
@@ -82,11 +87,11 @@
             </template>
           </template>
 
-          <template v-else-if="header._slug === 'datetime'">
+          <template v-else-if="header.type === 'datetime'">
             <span class="cell-string">{{ formatDateTime(item[header.key]) }}</span>
           </template>
 
-          <template v-else-if="header._slug === 'image upload' && header.field.list_preview">
+          <template v-else-if="header.type === 'image upload' && header.field.list_preview">
             <v-img
               v-if="item[header.key] && item[header.key].url"
               class="image-preview"
@@ -97,13 +102,13 @@
             />
           </template>
 
-          <template v-else-if="header._slug === 'file upload'">
+          <template v-else-if="header.type === 'file upload'">
             <span class="cell-string" v-if="item[header.key]">{{ item[header.key].name }}</span>
             <span class="cell-string" v-else>{{ item[header.key] }}</span>
           </template>
 
           <template v-else>
-            <div :class="header._slug" style="display: none" />
+            <div :class="header.type" style="display: none" />
             <span class="cell-string">{{ item[header.key] }}</span>
           </template>
         </div>
@@ -263,18 +268,22 @@
 </template>
 
 <script>
-import { CategorySchema } from '/src/api/scheme'
+import { CategorySchema, detailUrl } from '/src/api/scheme'
 import { getSettings, setSettings } from '/src/utils/settings'
 import { getDataList, sendTableAction, downloadContent } from '/src/api/table'
 import moment from 'moment'
 import { toast } from "vue3-toastify"
+import FieldsContainer from '/src/components/table/FieldsContainer.vue'
+import FormCreate from '/src/components/table/FormCreate.vue'
 
 export default {
   props: {
-    group: {type: String, required: true},
-    category: {type: String, required: true},
-
+    adminSchema: {type: Object, required: true},
     categorySchema: {type: CategorySchema, required: true},
+  },
+  components: {
+    FieldsContainer,
+    FormCreate,
   },
   data() {
     return {
@@ -317,10 +326,10 @@ export default {
 
       const tableInfo = this.categorySchema.getTableInfo()
 
-      for (const [slug, field] of Object.entries(tableInfo.table_schema)) {
+      for (const [slug, field] of Object.entries(tableInfo.table_schema.fields)) {
         const headerData = field.header || {}
         headerData['key'] = slug
-        headerData['_slug'] = field._slug
+        headerData['type'] = field.type
         headerData['title'] = field.label
         headerData['align'] = headerData['align'] || 'left'
         headerData['sortable'] = tableInfo.ordering_fields.indexOf(slug) >= 0
@@ -341,6 +350,12 @@ export default {
       if (this.actionToAll) return this.getTotalCount()
       return this.selected ? this.selected.length : 0
     },
+    hasFilters() {
+      return (
+        this.categorySchema.getTableInfo().search_enabled ||
+        Object.keys(this.categorySchema.getTableInfo().table_filters).length > 0
+      )
+    },
     getTotalCount() {
       return this.pageData.count || 0
     },
@@ -352,20 +367,20 @@ export default {
     },
     handleClick(index, row) {
       if (index == 0 && this.canRetrieve()) {
-        const pkValue = row[this.sectionData.meta.pk_name]
+        const pkValue = row[this.categorySchema.getTableInfo().pk_name]
 
-        if (!this.sectionData.meta.pk_name || !pkValue) {
-          console.error(`PK value "${this.sectionData.meta.pk_name}" not found in row:`, row)
+        if (!this.categorySchema.getTableInfo().pk_name || !pkValue) {
+          console.error(`PK value "${this.categorySchema.getTableInfo().pk_name}" not found in row:`, row)
           return
         }
 
-        const edit_url = `/${this.sectionData.group}/${this.viewname}/${pkValue}/update`
-        this.$router.push({ path: edit_url } )
+        const url = detailUrl(this.categorySchema.group, this.categorySchema.category, pkValue)
+        this.$router.push({ path: url } )
       }
     },
     deserializeQuery() {
       // Change url params only if group presented
-      if (!this.group) return
+      if (!this.categorySchema.group) return
 
       const page = this.$route.query.page
       if (page) this.pageInfo.page = parseInt(page)
@@ -382,7 +397,7 @@ export default {
     },
     serializeQuery() {
       // Change url params only if group presented
-      if (!this.group) return
+      if (!this.categorySchema.group) return
 
       let newQuery = {}
       if (this.pageInfo.page) newQuery.page = this.pageInfo.page
@@ -404,8 +419,8 @@ export default {
         filters: this.filterInfo,
         ordering: this.ordering,
 
-        group: this.group,
-        category: this.category,
+        group: this.categorySchema.group,
+        category: this.categorySchema.category,
       }).then(responseData => {
         this.pageData = responseData
         this.loading = false
@@ -475,8 +490,8 @@ export default {
     applyAction() {
       this.actionLoading = false
       sendTableAction({
-        group: this.group,
-        category: this.category,
+        group: this.categorySchema.group,
+        category: this.categorySchema.category,
 
         action: this.actionSelected,
         pks: this.selected,
@@ -519,6 +534,18 @@ export default {
           this.$refs.fieldscontainer.updateErrors(response.data)
         }
       })
+    },
+    updateSortBy(options) {
+      if (!options[0]) {
+        this.ordering = null
+      } else {
+        const desc = options[0].order === 'desc'? '-' : ''
+        const field_slug = options[0].key
+        this.ordering = `${desc}${field_slug}`
+      }
+
+      this.serializeQuery()
+      this.getListData()
     },
   },
 }

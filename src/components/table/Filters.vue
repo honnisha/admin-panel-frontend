@@ -2,21 +2,33 @@
 
   <div class="filters-container">
 
-    <div class="filter-element" v-if="getTableInfo().search">
-      <v-text-field
-        density="compact"
-        variant="solo"
-        prepend-inner-icon="mdi-magnify"
+    <div class="filter-element" v-if="getTableInfo().search_enabled">
 
-        v-model="filterInfo.search"
-        :clearable="true"
-        :label="$t('search')"
-        @keydown.enter.prevent="applyFilter"
-      />
+      <v-tooltip
+        location="bottom"
+        :text="getTableInfo().search_help"
+        :disabled="!getTableInfo().search_help"
+      >
+        <template v-slot:activator="{ props }">
+          <v-text-field
+            v-bind="props"
+
+            density="compact"
+            variant="solo"
+            prepend-inner-icon="mdi-magnify"
+
+            v-model="filterInfo.search"
+            :clearable="true"
+            :label="$t('search')"
+            @keydown.enter.prevent="applyFilter"
+          />
+        </template>
+      </v-tooltip>
+
     </div>
 
     <div
-      v-for="(filter, filter_name) in getTableInfo().table_filters"
+      v-for="(filter, filter_name) in getTableInfo().table_filters.fields"
       v-bind:key="filter_name"
       class="filter-element"
     >
@@ -120,13 +132,13 @@ export default {
         'TimeFilter',
       ]
 
-      if (['ChoiceFilter'].indexOf(filter._slug) !== -1 || filter.choices) return ChoiceField
+      if (['ChoiceFilter'].indexOf(filter.type) !== -1 || filter.choices) return ChoiceField
 
-      if (datetime.indexOf(filter._slug) !== -1) return DateTimeField
-      if (related.indexOf(filter._slug) !== -1) return RelatedField
-      if (['string'].indexOf(filter._slug) !== -1) return StringField
-      if (['integer'].indexOf(filter._slug) !== -1) return NumberField
-      if (['boolean'].indexOf(filter._slug) !== -1) return BooleanFilter
+      if (datetime.indexOf(filter.type) !== -1) return DateTimeField
+      if (related.indexOf(filter.type) !== -1) return RelatedField
+      if (['string'].indexOf(filter.type) !== -1) return StringField
+      if (['integer'].indexOf(filter.type) !== -1) return NumberField
+      if (['boolean'].indexOf(filter.type) !== -1) return BooleanFilter
     },
     _updateValue(value, filter_name) {
       this.filterInfo.filters[filter_name] = value

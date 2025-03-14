@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { config_dataset } from '/src/utils/settings'
 
 import Layout from '/src/layout/Layout.vue'
+import Detail from '/src/views/Detail.vue'
 import Dashboard from '/src/views/Dashboard.vue'
 import Category from '/src/views/Category.vue'
 import Login from '/src/views/Login.vue'
@@ -32,8 +33,14 @@ const routes = [
       {
         path: ':group/:category/',
         props: true,
-        name: 'edit',
+        name: 'category',
         component: Category,
+      },
+      {
+        path: ':group/:category/:pk/',
+        props: true,
+        name: 'detail',
+        component: Detail,
       },
     ]
   },

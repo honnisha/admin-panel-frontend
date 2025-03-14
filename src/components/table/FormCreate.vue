@@ -21,7 +21,7 @@
       <v-card v-if="open">
 
         <v-card-title class="d-flex justify-space-between align-center">
-          <span>{{ getTitle() }}: {{ $t('creation') }}</span>
+          <span v-if="getTitle()">{{ getTitle() }}: {{ $t('creation') }}</span>
 
           <v-btn
             icon="mdi-close"
@@ -35,11 +35,8 @@
         <FieldsContainer
           ref="fieldscontainer"
           form-type="create"
-          :api-info="apiInfo"
-          :viewname="viewname"
+          :table-schema="this.categorySchema.getTableInfo().table_schema"
 
-          :relation-name-filter="relationNameFilter"
-          :filter-id="filterId"
           :loading="loading"
 
           @changed="value => formData = value"
@@ -66,18 +63,19 @@
 
 <script>
 // A component for displaying a button that causes a form to be opened to create a model.
-
+import { CategorySchema } from '/src/api/scheme'
+import { getTableCreate } from '/src/api/table'
 import { toast } from "vue3-toastify"
-
-import FieldsContainer from '/src/components/FieldsContainer.vue'
+import FieldsContainer from '/src/components/table/FieldsContainer.vue'
 
 export default {
   props: {
-    apiInfo: {type: Object, required: true},
-
-    viewname: {type: String, required: false},
-    relationNameFilter: {type: String, required: false},
-    filterId: {type: String, required: false},
+    title: {type: String, required: true},
+    adminSchema: {type: Object, required: true},
+    categorySchema: {type: CategorySchema, required: true},
+  },
+  components: {
+    FieldsContainer,
   },
   emits: ["created"],
   data() {
@@ -89,17 +87,19 @@ export default {
   },
   methods: {
     getTitle() {
-      return this.apiInfo[this.viewname].title
+      return this.title
     },
     createModel() {
       this.loading = true
       this.$refs.fieldscontainer.updateErrors({})
-      sendData(
-        this.formData,
-      ).then(response => {
+      getTableCreate({
+        group: this.categorySchema.group,
+        category: this.categorySchema.category,
+        data: this.formData,
+      }).then(response => {
         this.loading = false
         if (response) {
-          let message = this.$t('modelCreated').replace('{pk}', response.pk)
+          let message = this.$t('modelCreated', {'pk': response.data.pk})
           toast(message, {"theme": "auto", "type": "success", "position": "top-center"})
         }
         this.open = false

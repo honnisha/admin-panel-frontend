@@ -50,7 +50,6 @@
 <script>
 import { defaultProps, validateProps } from '/src/utils/fields.js'
 import { toast } from "vue3-toastify"
-import { getAutocomplete } from '/src/api/getAutocomplete'
 
 const requiredFields = {
   model_name: {type: String, required: false},

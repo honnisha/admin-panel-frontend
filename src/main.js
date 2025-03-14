@@ -12,10 +12,10 @@ import '@jsonforms/vue-vanilla/vanilla.css';
 const app = createApp(App)
 app.component('JsonForms', JsonForms)
 
-import List from '/src/views/List.vue'
-import Edit from '/src/views/Edit.vue'
-app.component('List', List)
-app.component('Edit', Edit)
+import Category from '/src/views/Category.vue'
+import Detail from '/src/views/Detail.vue'
+app.component('Category', Category)
+app.component('Detail', Detail)
 
 registerPlugins(app)
 
