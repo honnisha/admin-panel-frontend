@@ -28,7 +28,7 @@ import { setLang, removeToken } from '/src/utils/auth'
 
 export default {
   props: {
-    apiInfo: {type: Object, required: true},
+    adminSchema: {type: Object, required: true},
     settings: {type: Object, required: true},
     langs: {type: Object, required: true},
     profile: {type: Object, required: true},
@@ -52,7 +52,7 @@ export default {
   },
   methods: {
     getBreadcrumbInfo() {
-      this.path = getBreadcrumbs(this.apiInfo, this.$router, this.$route)
+      this.path = getBreadcrumbs(this.adminSchema, this.$router, this.$route)
     },
     changeLang(langSlug) {
       setLang(langSlug)

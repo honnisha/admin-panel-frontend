@@ -2,52 +2,33 @@ import request from '/src/utils/request'
 import { config_dataset } from '/src/utils/settings'
 import { getLang } from '/src/utils/auth'
 import { toast } from "vue3-toastify"
-import moment from 'moment'
 
-const tableDataListUrl = config_dataset.backend_prefix + 'table/{group}/{category}/'
-const tableDataRetriveUrl = config_dataset.backend_prefix + 'table/{group}/{category}/retrive/{pk}/'
+const tableDataListUrl = config_dataset.backend_prefix + 'table/{group}/{category}/list/'
+const tableDataRetriveUrl = config_dataset.backend_prefix + 'table/{group}/{category}/retrieve/{pk}/'
 const tableDataCreateUrl = config_dataset.backend_prefix + 'table/{group}/{category}/create/'
 const tableDataUpdateUrl = config_dataset.backend_prefix + 'table/{group}/{category}/update/{pk}/'
 const tableDataActionUrl = config_dataset.backend_prefix + 'table/{group}/{category}/action/{action}/'
 
+const tableDataAutocompleteUrl = config_dataset.backend_prefix + 'table/{group}/{category}/autocomplete/'
+
 export function getDataList(kwargs) {
   return new Promise((resolve, reject) => {
-    let urlsParams = JSON.parse(JSON.stringify(kwargs.pageInfo || {}))
-
-    if (kwargs.search) urlsParams.search = kwargs.search
-    if (kwargs.ordering) urlsParams.ordering = kwargs.ordering
-
-    if (kwargs.relationNameFilter) {
-      urlsParams.relfilter = kwargs.relationNameFilter
-      urlsParams.relfilterid = kwargs.filterId
-    }
-
-    if (kwargs.inline_action) {
-      urlsParams.inline_action = kwargs.inline_action
-    }
-
-    if (kwargs.filters) {
-      urlsParams.filters = encodeURIComponent(JSON.stringify(kwargs.filters))
-    }
-
-    let params = new URLSearchParams()
-    for(const [k, v]  of Object.entries(urlsParams)){
-      if (Array.isArray(v)){
-          v.forEach(element => {
-          params.append(k, element)
-        });
-      } else {
-        params.set(k,v)
-      }
-    }
-
+    const pageInfo = kwargs.pageInfo || {}
     const url = tableDataListUrl.replace('{group}', kwargs.group).replace('{category}', kwargs.category)
-    const fillUrl = `${url}?${params.toString()}`
     request({
-      url: fillUrl,
-      method: 'GET',
+      url: url,
+      method: 'post',
+      data: {
+        ordering: kwargs.ordering,
+        search: kwargs.search,
+        filters: kwargs.filters,
+        inline_action: kwargs.inline_action || false,
+        page: pageInfo.page,
+        limit: pageInfo.limit,
+      },
       headers: {
         'Accept-Language': getLang(),
+        'Cache-Control': 'no-cache',
       },
       timeout: config_dataset.api_timeout_ms,
     }).then(response => {
@@ -64,6 +45,10 @@ export function getTableCreate(kwargs) {
       method: 'post',
       data: kwargs.data,
       timeout: config_dataset.api_timeout_ms,
+      headers: {
+        'Accept-Language': getLang(),
+        'Cache-Control': 'no-cache',
+      },
     }).then(response => {
       resolve(response)
     }).catch(error => reject(error))
@@ -75,8 +60,12 @@ export function getTableRetrieve(kwargs) {
     const url = tableDataRetriveUrl.replace('{group}', kwargs.group).replace('{category}', kwargs.category).replace('{pk}', kwargs.pk)
     request({
       url: url,
-      method: 'GET',
+      method: 'post',
       timeout: config_dataset.api_timeout_ms,
+      headers: {
+        'Accept-Language': getLang(),
+        'Cache-Control': 'no-cache',
+      },
     }).then(response => {
       resolve(response)
     }).catch(error => reject(error))
@@ -104,6 +93,7 @@ export async function sendTableUpdate(kwargs) {
       data: kwargs.data,
       headers: {
         'Accept-Language': getLang(),
+        'Cache-Control': 'no-cache',
       },
       timeout: config_dataset.api_timeout_ms,
     }).then(response => {
@@ -152,6 +142,7 @@ export async function sendTableAction(kwargs) {
       },
       headers: {
         'Accept-Language': getLang(),
+        'Cache-Control': 'no-cache',
       },
       timeout: config_dataset.api_timeout_ms,
     }).then(response => {
@@ -179,5 +170,31 @@ export async function sendTableAction(kwargs) {
         }
       }
     })
+  })
+}
+
+export function getTableAutocomplete(kwargs) {
+  return new Promise((resolve, reject) => {
+    const url = tableDataAutocompleteUrl.replace('{group}', kwargs.group).replace('{category}', kwargs.category)
+    request({
+      url: url,
+      data: {
+        search_string: kwargs.search_string,
+        field_slug: kwargs.field_slug,
+        is_filter: kwargs.is_filter,
+        form_data: kwargs.form_data,
+        existed_choices: kwargs.existed_choices,
+        action_name: kwargs.action_name,
+        limit: kwargs.limit,
+      },
+      method: 'post',
+      timeout: config_dataset.api_timeout_ms,
+      headers: {
+        'Accept-Language': getLang(),
+        'Cache-Control': 'no-cache',
+      },
+    }).then(response => {
+      resolve(response)
+    }).catch(error => reject(error))
   })
 }

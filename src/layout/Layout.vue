@@ -6,7 +6,7 @@
       <Navbar ref="navbar" :admin-schema="adminSchema" :settings="settings"/>
 
       <Header
-        :api-info="adminSchema"
+        :admin-schema="adminSchema"
         :settings="settings"
         :profile="profile"
         :langs="langs"
@@ -74,6 +74,10 @@ export default {
     }
   },
   async created() {
+    this.langs = {
+      'en': 'English',
+      'ru': 'Russian',
+    }
     this.settings = getSettings()
 
     if (!getToken()) {

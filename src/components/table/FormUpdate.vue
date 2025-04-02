@@ -4,7 +4,8 @@
     <FieldsContainer
       ref="fieldscontainer"
       form-type="edit"
-      :table-schema="this.categorySchema.getTableInfo().table_schema"
+      :category-schema="categorySchema"
+      :table-schema="categorySchema.getTableInfo().table_schema"
 
       :loading="loading"
       :read-only="!canUpdate()"
@@ -16,19 +17,19 @@
       <div class="model-form-button">
         <v-btn
           v-if="canUpdate()"
-          :text="$t('update')"
+          :text="$t('updateContinue')"
           variant="elevated"
-          color="primary"
-          @click="updateModel(true)"
+          color="secondary"
+          @click="updateModel(false)"
         />
       </div>
       <div class="model-form-button">
         <v-btn
           v-if="canUpdate()"
-          :text="$t('updateContinue')"
+          :text="$t('update')"
           variant="elevated"
-          color="secondary"
-          @click="updateModel(false)"
+          color="primary"
+          @click="updateModel(true)"
         />
       </div>
     </div>
@@ -118,8 +119,13 @@ export default {
         this.loading = false
         if (error.response) {
           if (error.response.status === 400) {
-            this.$refs.fieldscontainer.updateErrors(error.response.data)
-            toast(this.$t('fixErrors'), {"theme": "auto", "type": "error", "position": "top-center"})
+            this.$refs.fieldscontainer.updateErrors(error.response.data.field_errors)
+
+            if (error.response.data.code) {
+              toast(this.$t(error.response.data.code), {"theme": "auto", "type": "error", "position": "top-center" })
+            } else if (error.response.data.message) {
+              toast(this.$t(error.response.data.message), {"theme": "auto", "type": "error", "position": "top-center" })
+            }
             return
           }
           console.error('Api error:', error.response.data)

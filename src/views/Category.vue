@@ -4,6 +4,10 @@
     <TableCategory :admin-schema="adminSchema" :category-schema="categorySchema"/>
   </template>
 
+  <template v-if="categorySchema.type === 'graphs'">
+    <GraphsCategory :admin-schema="adminSchema" :category-schema="categorySchema"/>
+  </template>
+
   <template v-else>
     Category type "{{ categorySchema.type }}" is not supported
   </template>
@@ -12,7 +16,8 @@
 
 <script>
 import { config_dataset } from '/src/utils/settings'
-import TableCategory from '/src/components/categories/TableCategory.vue'
+import TableCategory from '/src/components/table/TableCategory.vue'
+import GraphsCategory from '/src/components/graphs/GraphsCategory.vue'
 
 export default {
   props: {
@@ -45,7 +50,9 @@ export default {
       immediate: true,
       handler(to, from) {
         const categorySchema = this.adminSchema.get_category(this.group, this.category)
-        document.title = `${categorySchema.title} | ${config_dataset.title}`
+        if (categorySchema) {
+          document.title = `${categorySchema.title} | ${config_dataset.title}`
+        }
       }
     },
   },

@@ -17,8 +17,8 @@
       ></v-tab>
     </v-tabs>
 
-    <template v-if="errors">
-      <template v-for="error in errors['non_field_errors']" v-bind:key="error">
+    <template v-if="field_errors">
+      <template v-for="error in field_errors['non_field_errors']" v-bind:key="error">
         <v-alert
           :text="error"
           type="error"
@@ -72,12 +72,13 @@
                         v-if="getFieldComponent(field, translation.slug)"
                         :is="getFieldComponent(field, translation.slug)"
 
+                        :category-schema="categorySchema"
+
                         density="comfortable"
                         variant="filled"
                         :ref="getRefString(translation.slug)"
                         :field="field"
                         :field-slug="translation.slug"
-                        :viewname="viewname"
                         :loading="loading"
                         :action-name="actionName"
                         :read-only="readOnly || field.read_only"
@@ -97,12 +98,13 @@
                   v-if="getFieldComponent(field, field_slug)"
                   :is="getFieldComponent(field, field_slug)"
 
+                  :category-schema="categorySchema"
+
                   density="comfortable"
                   variant="filled"
                   :ref="getRefString(field_slug)"
                   :field="field"
                   :field-slug="field_slug"
-                  :viewname="viewname"
                   :loading="loading"
                   :action-name="actionName"
                   :read-only="readOnly || field.read_only"
@@ -117,8 +119,10 @@
                 </template>
               </template>
 
-              <template v-if="errors && errors[field_slug]">
-                <p class="form-error" v-for="error in errors[field_slug]">{{ error }}</p>
+              <template v-if="field_errors && field_errors[field_slug]">
+                <p class="form-error">
+                  {{ formatError(field_errors[field_slug]) }}
+                </p>
               </template>
 
             </v-col>
@@ -132,6 +136,7 @@
 </template>
 
 <script>
+import { CategorySchema } from '/src/api/scheme'
 import { getCustomField } from '/src/components/custom-fields/index.js'
 // Contains a list of tabs and a list of fields
 
@@ -152,7 +157,8 @@ const wysiwyg = TinyMCEField;
 
 export default {
   props: {
-    tableSchema: {type: Object, required: false},
+    categorySchema: {type: CategorySchema, required: true},
+    tableSchema: {type: Object, required: true},
     loading: {type: Boolean, required: false},
     readOnly: {type: Boolean, required: false},
     formType: {
@@ -167,7 +173,7 @@ export default {
   data() {
     return {
       tab: null,
-      errors: {},
+      field_errors: {},
       formData: {},
       translationsTabs: {},
       fieldGroups: null,
@@ -182,11 +188,11 @@ export default {
       if (custom_field) return custom_field
 
       if (['boolean'].indexOf(field.type) !== -1) return BooleanField
-      if (['integer', 'decimal', 'float'].indexOf(field.type) !== -1) return NumberField
+      if (['integer'].indexOf(field.type) !== -1) return NumberField
       if (['list', 'choice'].indexOf(field.type) !== -1) return ChoiceField
-      if (['image upload', 'file upload', 'svgfield'].indexOf(field.type) !== -1) return FileField
+      if (['image', 'file'].indexOf(field.type) !== -1) return FileField
       if (['datetime', 'date', 'time'].indexOf(field.type) !== -1) return DateTimeField
-      if (['primary', 'primarymany'].indexOf(field.type) !== -1) return RelatedField
+      if (['foreign_key', 'primarymany'].indexOf(field.type) !== -1) return RelatedField
 
       if (['field', 'string', 'email', 'url', 'slug'].indexOf(field.type) !== -1) {
         if (field.wysiwyg) return wysiwyg
@@ -214,8 +220,8 @@ export default {
     getRefString(slug) {
       return `field_${slug}`
     },
-    updateErrors(newErrors) {
-      this.errors = newErrors
+    updateErrors(field_errors) {
+      this.field_errors = field_errors
     },
     updateFormData(newData) {
       // Update form date from outside
@@ -249,13 +255,19 @@ export default {
     isTabError(groupInfo) {
       if (!groupInfo.fields) return false
 
-      for (const error_field of Object.keys(this.errors)) {
+      for (const error_field of Object.keys(this.field_errors)) {
         if (groupInfo.fields.indexOf(error_field) !== -1) {
           return true
         }
       }
       return false
     },
+    formatError(error) {
+      if (error.code) {
+        return this.$t(error.code)
+      }
+      return this.$t(error.message)
+    }
   },
 }
 </script>

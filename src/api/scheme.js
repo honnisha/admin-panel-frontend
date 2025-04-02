@@ -60,6 +60,10 @@ export class CategorySchema {
   getTableInfo() {
     return this.schema['table_info']
   }
+
+  getGraphInfo() {
+    return this.schema['graph_info']
+  }
 }
 
 export class AdminSchema {
@@ -72,7 +76,10 @@ export class AdminSchema {
     if (!group) {
       return
     }
-    return new CategorySchema(group.categories[category_slug], group_slug, category_slug)
+    const category = group.categories[category_slug]
+    if (category) {
+      return new CategorySchema(category, group_slug, category_slug)
+    }
   }
 
   get_groups() {

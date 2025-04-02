@@ -1,6 +1,5 @@
 export const defaultProps = {
-  group: {type: String, required: false},
-  category: {type: String, required: false},
+  categorySchema: {type: Object, required: true},
 
   variant: {type: String, required: true},
   density: {type: String, required: true},
@@ -10,9 +9,6 @@ export const defaultProps = {
   isFilter: {type: Boolean, required: false},
   readOnly: {type: Boolean, required: false},
   actionName: {type: String, required: false},
-
-  relationNameFilter: {type: String, required: false},
-  filterId: {type: String, required: false},
 }
 
 const baseFields = {
@@ -38,11 +34,11 @@ export function validateProps(comp, compReqFields) {
     const setting = comp.field[fieldName]
 
     if (!setting && fieldSettings.required) {
-      console.error(`Field ${comp.category}.${comp.fieldSlug} type ${comp.field.type} attribute not found: "${fieldName}"`)
+      console.error(`Field ${comp.fieldSlug} type ${comp.field.type} attribute not found: "${fieldName}"`)
     }
 
     if (setting && setting.type && !(fieldSettings instanceof setting.type)) {
-      console.error(`Field ${comp.category}.${comp.fieldSlug} type ${typeof fieldSettings} is not ${setting.type}`)
+      console.error(`Field ${comp.fieldSlug} type ${typeof fieldSettings} is not ${setting.type}`)
     }
   }
 }

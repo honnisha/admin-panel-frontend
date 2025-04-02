@@ -22,7 +22,7 @@
                     max-width="250"
                     :eager="true"
                   />
-                  <span class="font-weight-black" v-else>{{ getTitle() }}</span>
+                  <span class="login-title" v-else>{{ getTitle() }}</span>
                 </v-row>
               </template>
 
@@ -108,6 +108,8 @@ export default {
       return config_dataset.title
     },
     login() {
+      if (!this.username && !this.password) return
+
       this.loading = true
       login(this.username, this.password).then(() => {
         this.$router.push('/')
@@ -116,10 +118,13 @@ export default {
         this.loading = false
         let error_message = error.message
         if (error.response) {
-          const data = error.response.data
+          const data = error.response.data || {}
 
-          if (data && data['non_field_errors']) {
-            error_message = data['non_field_errors'][0]
+          if (data['code']) {
+            error_message = this.$t(data['code'])
+          }
+          else {
+            error_message = data['message']
           }
         }
         toast(error_message, {

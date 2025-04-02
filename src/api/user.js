@@ -1,10 +1,8 @@
-import Cookies from 'js-cookie'
-
 import request from '/src/utils/request'
-import { setToken, removeToken, setLang } from '/src/utils/auth'
+import { setToken, removeToken } from '/src/utils/auth'
 import { config_dataset } from '/src/utils/settings'
 
-const loginUrl = config_dataset.backend_prefix + 'token-auth/'
+const loginUrl = config_dataset.backend_prefix + 'auth/login/'
 
 function loginApi(data) {
   var post_data = {

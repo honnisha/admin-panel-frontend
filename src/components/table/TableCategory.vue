@@ -8,6 +8,10 @@
           :filter-info-init="filterInfo"
           @filtered="handleFilter"
           :loading="listLoading"
+
+          :search-enabled="getTableInfo().search_enabled"
+          :fields-info="getTableInfo().table_filters.fields"
+          :search-help="getTableInfo().search_help"
         />
       </div>
 
@@ -53,11 +57,11 @@
           :class="{ 'table-cell': true, 'table-link': index === 0 && canRetrieve() }"
         >
 
-          <template v-if="header.type === 'primary'">
+          <template v-if="header.type === 'foreign_key'">
             <v-tooltip v-if="item[header.key]">
-              #{{ item[header.key].pk }}
+              #{{ item[header.key].key }}
               <template v-slot:activator="{ props }">
-                <v-chip size="small" v-bind="props">{{ item[header.key].text }}</v-chip>
+                <v-chip size="small" v-bind="props">{{ item[header.key].title }}</v-chip>
               </template>
             </v-tooltip>
           </template>
@@ -190,7 +194,7 @@
       <v-card>
 
         <v-card-title class="d-flex justify-space-between align-center">
-          <span>{{ $t('confirmation') }}: {{ getActionInfo().name }}</span>
+          <span>{{ $t('confirmation') }}: {{ getActionInfo().title }}</span>
 
           <v-btn
             icon="mdi-close"
@@ -219,7 +223,7 @@
       <v-card>
 
         <v-card-title class="d-flex justify-space-between align-center">
-          <span>{{ getActionInfo().name }}</span>
+          <span>{{ getActionInfo().title }}</span>
 
           <v-btn
             icon="mdi-close"
@@ -234,10 +238,9 @@
         <FieldsContainer
           ref="fieldscontainer"
           formType="create"
-          :api-info="apiInfo"
-          :form-schema="getActionInfo().form_schema"
+          :table-schema="getActionInfo().form_schema"
+
           :loading="actionLoading"
-          :action-name="actionSelected"
 
           @changed="value => actionFormData = value"
         />
@@ -357,7 +360,7 @@ export default {
       )
     },
     getTotalCount() {
-      return this.pageData.count || 0
+      return this.pageData.total_count || 0
     },
     canCreate() {
       return this.categorySchema.getTableInfo().can_create
@@ -457,7 +460,7 @@ export default {
       this.getListData()
     },
     getPagesLength() {
-      return Math.ceil((this.pageData.count || 0) / this.pageInfo.limit)
+      return Math.ceil((this.pageData.total_count || 0) / this.pageInfo.limit)
     },
     pressAction(actionInfo, actionKey) {
       if (!actionInfo.allow_empty_selection && !this.actionToAll && this.selected.length === 0) {
@@ -546,6 +549,14 @@ export default {
 
       this.serializeQuery()
       this.getListData()
+    },
+    formatDateTime(dateString) {
+      if (dateString) {
+        return moment(dateString).format('YYYY-MM-DD HH:mm')
+      }
+    },
+    getTableInfo() {
+      return this.categorySchema.getTableInfo()
     },
   },
 }

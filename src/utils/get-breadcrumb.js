@@ -1,6 +1,7 @@
 import i18n from '/src/plugins/i18n'
+import { detailUrl, categoryUrl } from '/src/api/scheme'
 
-export function getBreadcrumbs(apiInfo, router, route) {
+export function getBreadcrumbs(adminSchema, router, route) {
   let path = []
 
   path.unshift({
@@ -8,23 +9,23 @@ export function getBreadcrumbs(apiInfo, router, route) {
     to: '/dashboard',
   })
 
-  let sectionData = apiInfo[route.params.viewname]
-  if (!sectionData) return path
+  const categorySchema = adminSchema.get_category(route.params.group, route.params.category)
+  if (!categorySchema) return path
 
-  if (['edit', 'list'].indexOf(route.name) !== -1) {
-    const list_url = `/${sectionData.group}/${route.params.viewname}/list`
+  if (route.name === 'category' || route.name === 'detail') {
+    let url = categoryUrl(route.params.group, route.params.category)
     path.push({
-      to: list_url,
-      title: `${sectionData.title}`,
+      to: url,
+      title: `${categorySchema.title}`,
       viewname: route.params.viewname,
     })
   }
 
-  if (route.name === 'edit') {
-    const edit_url = `/${sectionData.group}/${route.params.viewname}/${route.params.pk}/update`
+  if (route.name === 'detail') {
+    let url = detailUrl(route.params.group, route.params.category, route.params.pk)
     path.push({
-      to: edit_url,
-      title: `${sectionData.title} #${route.params.pk}`,
+      to: url,
+      title: `${categorySchema.title} #${route.params.pk}`,
       viewname: route.params.viewname,
       pk: route.params.pk,
     })

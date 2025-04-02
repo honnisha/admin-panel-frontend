@@ -136,15 +136,13 @@ export default {
     },
     isRange() {
       const dates = [
-        'DateFromToRangeFilter',
-        'AdminDateFromToRangeFilter',
+        'date_range',
+        'datetime_range',
       ]
       return dates.indexOf(this.field.type) !== -1
     },
     isDate() {
       const date = [
-        'DateFromToRangeFilter',
-        'AdminDateFromToRangeFilter',
         'date',
       ]
       return date.indexOf(this.field.type) !== -1
@@ -153,18 +151,12 @@ export default {
       const time = [
         'datetime',
         'time',
-        'DateTimeField',
-        'DateTimeFilter',
-        'TimeField',
-        'TimeFilter',
       ]
       return time.indexOf(this.field.type) !== -1
     },
     isTimePicker() {
       const time = [
         'time',
-        'TimeField',
-        'TimeFilter',
       ]
       return time.indexOf(this.field.type) !== -1
     },

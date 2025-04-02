@@ -2,12 +2,12 @@
 
   <div class="filters-container">
 
-    <div class="filter-element" v-if="getTableInfo().search_enabled">
+    <div class="filter-element" v-if="searchEnabled">
 
       <v-tooltip
         location="bottom"
-        :text="getTableInfo().search_help"
-        :disabled="!getTableInfo().search_help"
+        :text="searchHelp"
+        :disabled="!searchHelp"
       >
         <template v-slot:activator="{ props }">
           <v-text-field
@@ -28,7 +28,7 @@
     </div>
 
     <div
-      v-for="(filter, filter_name) in getTableInfo().table_filters.fields"
+      v-for="(filter, filter_name) in fieldsInfo"
       v-bind:key="filter_name"
       class="filter-element"
     >
@@ -39,8 +39,7 @@
         density="compact"
         variant="solo"
 
-        :group="group"
-        :category="category"
+        :category-schema="categorySchema"
 
         :field="filter"
         :field-slug="filter_name"
@@ -50,6 +49,9 @@
         @changed="value => _updateValue(value, filter_name)"
         @keydown.enter.prevent="applyFilter"
       />
+      <template v-else>
+        {{ filter }}
+      </template>
     </div>
 
     <!--
@@ -94,6 +96,10 @@ export default {
     categorySchema: {type: CategorySchema, required: true},
     loading: {type: Boolean, required: false},
 
+    searchEnabled: {type: Boolean, required: false},
+    searchHelp: {type: String, required: false},
+    fieldsInfo: {type: Object, required: true},
+
     filterInfoInit: {type: Object, required: false},
   },
   emits: ["filtered"],
@@ -108,31 +114,15 @@ export default {
     }
   },
   methods: {
-    getTableInfo() {
-      return this.categorySchema.getTableInfo()
-    },
     getFieldComponent(filter) {
       const related = [
-        'ForeignKey',
-        'ModelChoiceFilter',
-        'ManyToManyField',
-        'OneToOneField',
-        'ManyToManyRel',
-        'ModelMultipleChoiceFilter',
-        'ManyRelatedField',
-        'AdminManyRelatedField',
-        'AdminPrimaryKeyRelatedField',
+        'foreign_key',
       ]
       const datetime = [
-        'DateTimeField',
-        'DateFromToRangeFilter',
-        'AdminDateFromToRangeFilter',
-        'DateTimeFilter',
-        'TimeField',
-        'TimeFilter',
+        'datetime',
       ]
 
-      if (['ChoiceFilter'].indexOf(filter.type) !== -1 || filter.choices) return ChoiceField
+      if (['choice'].indexOf(filter.type) !== -1 || filter.choices) return ChoiceField
 
       if (datetime.indexOf(filter.type) !== -1) return DateTimeField
       if (related.indexOf(filter.type) !== -1) return RelatedField

@@ -35,7 +35,8 @@
         <FieldsContainer
           ref="fieldscontainer"
           form-type="create"
-          :table-schema="this.categorySchema.getTableInfo().table_schema"
+          :category-schema="categorySchema"
+          :table-schema="categorySchema.getTableInfo().table_schema"
 
           :loading="loading"
 
@@ -109,9 +110,14 @@ export default {
         this.loading = false
         if (error.response) {
           if (error.response.status === 400) {
-            this.$refs.fieldscontainer.updateErrors(error.response.data)
+            this.$refs.fieldscontainer.updateErrors(error.response.data.field_errors)
+
+            if (error.response.data.code) {
+              toast(this.$t(error.response.data.code), {"theme": "auto", "type": "error", "position": "top-center" })
+            } else if (error.response.data.message) {
+              toast(this.$t(error.response.data.message), {"theme": "auto", "type": "error", "position": "top-center" })
+            }
             console.error('Validation errors', error.response.data)
-            toast(this.$t('fixErrors'), {"theme": "auto", "type": "error", "position": "top-center" })
             return
           }
           toast(`Error: ${error.response.data}`, {"theme": "auto", "type": "error", "position": "top-center"})

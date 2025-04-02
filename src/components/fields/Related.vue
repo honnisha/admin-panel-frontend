@@ -19,9 +19,9 @@
     no-filter
     hide-selected
 
-    :return-object="false"
-    item-value="pk"
-    item-title="text"
+    :return-object="true"
+    item-value="key"
+    item-title="title"
 
     :append-inner-icon="isMany() ? 'mdi-relation-many-to-many' : 'mdi-relation-many-to-one'"
 
@@ -33,14 +33,14 @@
       <v-chip
         class="autocomplete-chip"
         v-bind="props"
-        :text="item.raw.text"
+        :text="item.raw.title"
       ></v-chip>
     </template>
 
     <template v-slot:item="{ props, item }">
       <v-list-item
         v-bind="props"
-        :title="item.raw.text"
+        :title="item.raw.title"
       ></v-list-item>
     </template>
   </v-autocomplete>
@@ -49,12 +49,8 @@
 
 <script>
 import { defaultProps, validateProps } from '/src/utils/fields.js'
+import { getTableAutocomplete } from '/src/api/table'
 import { toast } from "vue3-toastify"
-
-const requiredFields = {
-  model_name: {type: String, required: false},
-  app_label: {type: String, required: false},
-}
 
 export default {
   props: {
@@ -72,13 +68,8 @@ export default {
     }
   },
   created() {
-    validateProps(this, requiredFields)
+    validateProps(this)
     this.value = this.field.initial
-
-    if (this.relationNameFilter === this.fieldSlug) {
-      this.value = this.isMany() ? [this.filterId] : this.filterId
-      this.$emit('changed', this.value)
-    }
 
     if (!this.readOnly) {
       this.updateChoices()
@@ -86,15 +77,11 @@ export default {
   },
   methods: {
     isReadOnly() {
-      return this.readOnly || this.relationNameFilter === this.fieldSlug
+      return this.readOnly
     },
     updateFormData(initFormData) {
       this.formData = initFormData
       this.value = initFormData[this.fieldSlug]
-
-      if (this.relationNameFilter === this.fieldSlug) {
-        this.value = this.isMany() ? [this.filterId] : this.filterId
-      }
 
       // Update choices to get display text
       if (!this.init) {
@@ -107,26 +94,24 @@ export default {
       this.updateChoices()
     },
     updateChoices() {
-      if (!this.field.model_name || !this.field.app_label) return
+      getTableAutocomplete({
+        group: this.categorySchema.group,
+        category: this.categorySchema.category,
 
-      getAutocomplete({
-        model_name: this.field.model_name,
-        app_label: this.field.app_label,
         search_string: this.search || '',
         limit: 30,
-        viewname: this.viewname,
         field_slug: this.fieldSlug,
         is_filter: this.isFilter,
-        form_data: this.formData,
+        form_data: this.formData || {},
         existed_choices: this.isMany() ? this.value : this.value ? [this.value] : [],
-        actionName: this.actionName,
+        action_name: this.actionName,
       }).then(response => {
-        this.choices = response
+        this.choices = response.data.results
         this.apiLoading = false
       }).catch(error => {
 
         this.apiLoading = false
-        let error_message = `Autocomplete ${this.field.model_name}.${this.field.app_label} search:"${this.search}" error:"${error}"`
+        let error_message = `Autocomplete ${this.categorySchema.group}.${this.categorySchema.category} search:"${this.search}" error:"${error}"`
         console.error(error_message)
         toast(error_message, {
           "limit": 3,
