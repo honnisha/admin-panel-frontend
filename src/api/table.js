@@ -9,8 +9,6 @@ const tableDataCreateUrl = config_dataset.backend_prefix + 'table/{group}/{categ
 const tableDataUpdateUrl = config_dataset.backend_prefix + 'table/{group}/{category}/update/{pk}/'
 const tableDataActionUrl = config_dataset.backend_prefix + 'table/{group}/{category}/action/{action}/'
 
-const tableDataAutocompleteUrl = config_dataset.backend_prefix + 'table/{group}/{category}/autocomplete/'
-
 export function getDataList(kwargs) {
   return new Promise((resolve, reject) => {
     const pageInfo = kwargs.pageInfo || {}
@@ -170,31 +168,5 @@ export async function sendTableAction(kwargs) {
         }
       }
     })
-  })
-}
-
-export function getTableAutocomplete(kwargs) {
-  return new Promise((resolve, reject) => {
-    const url = tableDataAutocompleteUrl.replace('{group}', kwargs.group).replace('{category}', kwargs.category)
-    request({
-      url: url,
-      data: {
-        search_string: kwargs.search_string,
-        field_slug: kwargs.field_slug,
-        is_filter: kwargs.is_filter,
-        form_data: kwargs.form_data,
-        existed_choices: kwargs.existed_choices,
-        action_name: kwargs.action_name,
-        limit: kwargs.limit,
-      },
-      method: 'post',
-      timeout: config_dataset.api_timeout_ms,
-      headers: {
-        'Accept-Language': getLang(),
-        'Cache-Control': 'no-cache',
-      },
-    }).then(response => {
-      resolve(response)
-    }).catch(error => reject(error))
   })
 }

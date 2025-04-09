@@ -115,17 +115,9 @@ export default {
   },
   methods: {
     getFieldComponent(filter) {
-      const related = [
-        'foreign_key',
-      ]
-      const datetime = [
-        'datetime',
-      ]
-
       if (['choice'].indexOf(filter.type) !== -1 || filter.choices) return ChoiceField
-
-      if (datetime.indexOf(filter.type) !== -1) return DateTimeField
-      if (related.indexOf(filter.type) !== -1) return RelatedField
+      if (['datetime'].indexOf(filter.type) !== -1) return DateTimeField
+      if (['related'].indexOf(filter.type) !== -1) return RelatedField
       if (['string'].indexOf(filter.type) !== -1) return StringField
       if (['integer'].indexOf(filter.type) !== -1) return NumberField
       if (['boolean'].indexOf(filter.type) !== -1) return BooleanFilter

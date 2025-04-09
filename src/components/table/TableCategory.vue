@@ -57,7 +57,7 @@
           :class="{ 'table-cell': true, 'table-link': index === 0 && canRetrieve() }"
         >
 
-          <template v-if="header.type === 'foreign_key'">
+          <template v-if="header.type === 'related'">
             <v-tooltip v-if="item[header.key]">
               #{{ item[header.key].key }}
               <template v-slot:activator="{ props }">

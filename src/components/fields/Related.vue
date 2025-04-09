@@ -49,7 +49,7 @@
 
 <script>
 import { defaultProps, validateProps } from '/src/utils/fields.js'
-import { getTableAutocomplete } from '/src/api/table'
+import { getTableAutocomplete } from '/src/api/autocomplete'
 import { toast } from "vue3-toastify"
 
 export default {
@@ -127,14 +127,7 @@ export default {
       this.$emit('changed', this.value)
     },
     isMany() {
-      const many = [
-        'primarymany',
-        'multiple choice',
-        'ModelMultipleChoiceFilter',
-        'ForeignKey',
-        'ManyToManyField',
-      ]
-      return many.indexOf(this.field.type) !== -1
+      return this.field.many
     },
   },
 }

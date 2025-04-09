@@ -192,7 +192,7 @@ export default {
       if (['list', 'choice'].indexOf(field.type) !== -1) return ChoiceField
       if (['image', 'file'].indexOf(field.type) !== -1) return FileField
       if (['datetime', 'date', 'time'].indexOf(field.type) !== -1) return DateTimeField
-      if (['foreign_key', 'primarymany'].indexOf(field.type) !== -1) return RelatedField
+      if (['related'].indexOf(field.type) !== -1) return RelatedField
 
       if (['field', 'string', 'email', 'url', 'slug'].indexOf(field.type) !== -1) {
         if (field.wysiwyg) return wysiwyg
