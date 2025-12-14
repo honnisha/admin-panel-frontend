@@ -13,7 +13,7 @@
           max-width="250"
           :eager="true"
         />
-        <p class="text-h6" v-else>{{ getTitle() }}</p>
+        <p class="project-logo-text text-h6" v-else>{{ getTitle() }}</p>
       </router-link>
     </v-list-item>
 

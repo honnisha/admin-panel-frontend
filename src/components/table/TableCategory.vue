@@ -79,10 +79,10 @@
 
           <template v-else-if="header.type === 'choice'">
             <template v-if="item[header.key] !== null && item[header.key] !== undefined">
-              <template v-if="Object.keys(header.field.tag_style || {}).length > 0">
+              <template v-if="Object.keys(header.field.tag_colors || {}).length > 0">
                 <v-chip
                   size="small"
-                  :color="header.field.tag_style[item[header.key]]"
+                  :color="header.field.tag_colors[item[header.key]]"
                 >{{ getChoiceTitle(item, header) }}</v-chip>
               </template>
               <template v-else>
@@ -95,18 +95,18 @@
             <span class="cell-string">{{ formatDateTime(item[header.key]) }}</span>
           </template>
 
-          <template v-else-if="header.type === 'image upload' && header.field.list_preview">
+          <template v-else-if="header.type === 'image'">
             <v-img
               v-if="item[header.key] && item[header.key].url"
               class="image-preview"
-              width="100"
-              max-height="100"
+              :max-height="header.field.preview_max_height || 100"
+              :max-width="header.field.preview_max_width || 100"
               cover
               :src="item[header.key].url"
             />
           </template>
 
-          <template v-else-if="header.type === 'file upload'">
+          <template v-else-if="header.type === 'file'">
             <span class="cell-string" v-if="item[header.key]">{{ item[header.key].name }}</span>
             <span class="cell-string" v-else>{{ item[header.key] }}</span>
           </template>
@@ -205,8 +205,8 @@
         </v-card-title>
 
         <v-card-text>
-          <p>{{ getActionInfo().confirmation_text }}</p>
-          <v-label class="info">{{ $t('selected') }} <p class="selected-count">{{ getSelectedCount()}}/{{ getTotalCount() }}</p></v-label>
+          <div class="confirmation-text">{{ getActionInfo().confirmation_text }}</div>
+          <v-label class="info selected-warning-count">{{ $t('selected') }} <p class="selected-count">{{ getSelectedCount()}}/{{ getTotalCount() }}</p></v-label>
         </v-card-text>
 
         <v-card-actions>
@@ -331,6 +331,7 @@ export default {
 
       for (const [slug, field] of Object.entries(tableInfo.table_schema.fields)) {
         const headerData = field.header || {}
+        headerData['field'] = field
         headerData['key'] = slug
         headerData['type'] = field.type
         headerData['title'] = field.label
@@ -558,6 +559,9 @@ export default {
     getTableInfo() {
       return this.categorySchema.getTableInfo()
     },
+    getChoiceTitle(item, header) {
+      return item[header.key]
+    }
   },
 }
 </script>

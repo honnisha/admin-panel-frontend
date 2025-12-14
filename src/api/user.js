@@ -1,8 +1,9 @@
 import request from '/src/utils/request'
 import { setToken, removeToken } from '/src/utils/auth'
 import { config_dataset } from '/src/utils/settings'
+import urlJoin from 'url-join'
 
-const loginUrl = config_dataset.backend_prefix + 'auth/login/'
+const loginUrl = urlJoin(config_dataset.backend_prefix, 'auth/login/')
 
 function loginApi(data) {
   var post_data = {

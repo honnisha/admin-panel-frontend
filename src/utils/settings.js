@@ -7,11 +7,22 @@ var config_dataset = {
   static_prefix: '/static/custom_admin',
   version: '-',
   api_timeout_ms: 1000 * 5,
+  languages: {
+    ru: 'Russian',
+    en: 'English',
+  },
 }
 
 if (import.meta.env.PROD) {
   config_dataset = JSON.parse(document.getElementById("settings").dataset.json)
-  config_dataset.static_prefix = '/static/custom_admin'
+
+  if (!config_dataset.static_prefix) {
+    config_dataset.static_prefix = '/'
+  }
+
+  if (!config_dataset.backend_prefix) {
+    config_dataset.backend_prefix = '/'
+  }
 }
 
 export var config_dataset

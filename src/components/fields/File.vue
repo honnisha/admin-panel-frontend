@@ -118,7 +118,7 @@ export default {
     },
     isImage() {
       const many = [
-        'image upload',
+        'image',
       ]
       return many.indexOf(this.field.type) !== -1
     }

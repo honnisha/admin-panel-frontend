@@ -1,8 +1,9 @@
 import request from '/src/utils/request'
 import { getToken, getLang } from '/src/utils/auth'
 import { config_dataset } from '/src/utils/settings'
+import urlJoin from 'url-join'
 
-const schemeUrl = config_dataset.backend_prefix + 'schema/'
+const schemeUrl = urlJoin(config_dataset.backend_prefix, 'schema/')
 
 export async function getAdminSchema() {
   return await new Promise((resolve, reject) => {
@@ -19,6 +20,17 @@ export async function getAdminSchema() {
       },
       timeout: config_dataset.api_timeout_ms,
     }).then(response => {
+      const contentType = response.headers.get("content-type");
+      if (!contentType || contentType.indexOf("application/json") === -1) {
+        reject(`Admin schema content-type response is not json: ${contentType}`);
+        return
+      }
+
+      if (!response.data.groups) {
+        reject('Admin schema groups data not found or empty');
+        return
+      }
+
       resolve(new AdminSchema(response.data))
     }).catch(error => {
       reject(error)
@@ -72,6 +84,10 @@ export class AdminSchema {
   }
 
   get_category(group_slug, category_slug) {
+    if (!this.schema.groups) {
+      console.error('this.schema.groups is none; this.schema:', this.schema)
+      return
+    }
     const group = this.schema.groups[group_slug]
     if (!group) {
       return

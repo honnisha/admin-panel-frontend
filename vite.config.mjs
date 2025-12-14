@@ -65,6 +65,6 @@ export default defineConfig({
     port: 3000,
   },
   build: {
-    assetsDir: 'static/custom_admin'
+    assetsDir: 'admin/static'
   }
 })

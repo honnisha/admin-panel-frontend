@@ -162,6 +162,9 @@ body {
     margin-top: 10px;
     margin-bottom: 10px;
 }
+.project-logo-text {
+    margin: 5px;
+}
 .login-header {
     background-color: rgb(var(--v-theme-darken3)) !important;
 }
@@ -202,4 +205,11 @@ body {
 .login-title {
     font-weight: bold;
     color: #FFFFFF;
+}
+
+.confirmation-text {
+    word-break: break-word !important;
+}
+.selected-warning-count {
+    padding-top: 10px;
 }

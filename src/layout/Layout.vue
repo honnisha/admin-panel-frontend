@@ -8,7 +8,6 @@
       <Header
         :admin-schema="adminSchema"
         :settings="settings"
-        :profile="profile"
         :langs="langs"
         @toggle-drawer="$refs.navbar.toggleDrawer()"
         @toggle-settings="$refs.settings.toggle()"
@@ -48,6 +47,7 @@
 
 <script>
 import { toast } from "vue3-toastify"
+import { config_dataset } from '/src/utils/settings'
 
 import Navbar from '/src/layout/Navbar.vue'
 import Header from '/src/layout/Header.vue'
@@ -66,7 +66,6 @@ export default {
   },
   data() {
     return {
-      profile: {},
       adminSchema: null,
       settings: null,
       loading: true,
@@ -74,10 +73,7 @@ export default {
     }
   },
   async created() {
-    this.langs = {
-      'en': 'English',
-      'ru': 'Russian',
-    }
+    this.langs = config_dataset.languages
     this.settings = getSettings()
 
     if (!getToken()) {
@@ -90,7 +86,7 @@ export default {
       this.loading = false
     }).catch(error => {
       this.loading = false
-      console.error('API error:', error)
+      console.error('Get admin schema error:', error)
       toast(error, {
         "theme": "auto",
         "type": "error",

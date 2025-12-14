@@ -1,7 +1,9 @@
 import request from '/src/utils/request'
 import { config_dataset } from '/src/utils/settings'
 import { getLang } from '/src/utils/auth'
-const graphUrl = config_dataset.backend_prefix + 'graph/{group}/{category}/'
+import urlJoin from 'url-join'
+
+const graphUrl = urlJoin(config_dataset.backend_prefix, 'graph/{group}/{category}/')
 
 export function getGraphData(kwargs) {
   return new Promise((resolve, reject) => {

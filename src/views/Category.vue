@@ -4,7 +4,7 @@
     <TableCategory :admin-schema="adminSchema" :category-schema="categorySchema"/>
   </template>
 
-  <template v-if="categorySchema.type === 'graphs'">
+  <template v-else-if="categorySchema.type === 'graphs'">
     <GraphsCategory :admin-schema="adminSchema" :category-schema="categorySchema"/>
   </template>
 
@@ -40,7 +40,7 @@ export default {
   created() {
     this.categorySchema = this.adminSchema.get_category(this.group, this.category)
     if (!this.categorySchema) {
-      console.error(`Page ${this.category} not found`)
+      console.error(`Page with category "${this.category}" not found`)
       this.$router.push({ path: '/404' })
       return
     }

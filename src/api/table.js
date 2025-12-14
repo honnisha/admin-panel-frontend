@@ -2,12 +2,13 @@ import request from '/src/utils/request'
 import { config_dataset } from '/src/utils/settings'
 import { getLang } from '/src/utils/auth'
 import { toast } from "vue3-toastify"
+import urlJoin from 'url-join'
 
-const tableDataListUrl = config_dataset.backend_prefix + 'table/{group}/{category}/list/'
-const tableDataRetriveUrl = config_dataset.backend_prefix + 'table/{group}/{category}/retrieve/{pk}/'
-const tableDataCreateUrl = config_dataset.backend_prefix + 'table/{group}/{category}/create/'
-const tableDataUpdateUrl = config_dataset.backend_prefix + 'table/{group}/{category}/update/{pk}/'
-const tableDataActionUrl = config_dataset.backend_prefix + 'table/{group}/{category}/action/{action}/'
+const tableDataListUrl = urlJoin(config_dataset.backend_prefix, 'table/{group}/{category}/list/')
+const tableDataRetriveUrl = urlJoin(config_dataset.backend_prefix, 'table/{group}/{category}/retrieve/{pk}/')
+const tableDataCreateUrl = urlJoin(config_dataset.backend_prefix, 'table/{group}/{category}/create/')
+const tableDataUpdateUrl = urlJoin(config_dataset.backend_prefix, 'table/{group}/{category}/update/{pk}/')
+const tableDataActionUrl = urlJoin(config_dataset.backend_prefix, 'table/{group}/{category}/action/{action}/')
 
 export function getDataList(kwargs) {
   return new Promise((resolve, reject) => {

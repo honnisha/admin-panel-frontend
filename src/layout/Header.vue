@@ -12,9 +12,11 @@
 
     <v-btn icon @click.native="$emit('toggleSettings')"><v-icon>mdi-cog-outline</v-icon></v-btn>
 
-    <Language :langs="langs"/>
+    <v-template v-if="langs">
+      <Language :langs="langs"/>
+    </v-template>
 
-    {{ profile.username }}
+    {{ adminSchema.schema.profile.username }}
 
     <v-btn icon @click.native="logout"><v-icon>mdi-logout</v-icon></v-btn>
 
@@ -31,7 +33,6 @@ export default {
     adminSchema: {type: Object, required: true},
     settings: {type: Object, required: true},
     langs: {type: Object, required: true},
-    profile: {type: Object, required: true},
   },
   components: {
     Language,
