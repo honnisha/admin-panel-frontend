@@ -213,3 +213,29 @@ body {
 .selected-warning-count {
     padding-top: 10px;
 }
+
+.router-container {
+  position: relative;
+  min-height: 100%;
+  overflow: hidden;
+}
+
+.route-view {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  background: var(--app-bg, rgb(var(--v-theme-surface)));
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.18s linear;
+}
+
+.fade-enter-from {
+  opacity: 0;
+}
+
+.fade-leave-to {
+  opacity: 0;
+}

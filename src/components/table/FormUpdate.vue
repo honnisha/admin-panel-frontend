@@ -21,6 +21,7 @@
           variant="elevated"
           color="secondary"
           @click="updateModel(false)"
+          :disabled="this.loading"
         />
       </div>
       <div class="model-form-button">
@@ -30,6 +31,7 @@
           variant="elevated"
           color="primary"
           @click="updateModel(true)"
+          :disabled="this.loading"
         />
       </div>
     </div>

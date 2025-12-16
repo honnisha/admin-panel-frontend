@@ -11,7 +11,7 @@
     :loading="loading"
 
     :items="field.choices"
-    item-title="display_name"
+    item-title="title"
     item-value="value"
     :return-object="false"
 

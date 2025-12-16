@@ -16,11 +16,19 @@
       <v-main class="d-flex page-container">
         <Settings ref="settings"/>
 
-        <router-view v-slot="{ Component }">
-          <v-fade-transition>
-            <component :is="Component" :key="$route.path" :admin-schema="adminSchema" :settings="settings"/>
-          </v-fade-transition>
-        </router-view>
+        <div class="router-container">
+          <router-view v-slot="{ Component }">
+            <Transition name="fade" mode="in-out">
+              <component
+                :is="Component"
+                :key="$route.path"
+                :admin-schema="adminSchema"
+                :settings="settings"
+                class="route-view"
+              />
+            </Transition>
+          </router-view>
+        </div>
 
       </v-main>
 

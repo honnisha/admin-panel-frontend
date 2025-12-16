@@ -13,8 +13,9 @@ const app = createApp(App)
 app.component('JsonForms', JsonForms)
 
 import Category from '/src/views/Category.vue'
-import Detail from '/src/views/Detail.vue'
 app.component('Category', Category)
+
+import Detail from '/src/views/Detail.vue'
 app.component('Detail', Detail)
 
 registerPlugins(app)

@@ -266,7 +266,7 @@ export default {
       if (error.code) {
         return this.$t(error.code)
       }
-      return this.$t(error.message)
+      return error.message
     }
   },
 }

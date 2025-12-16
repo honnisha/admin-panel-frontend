@@ -68,7 +68,11 @@
 
           <template v-else-if="header.type === 'primarymany'">
             <template v-if="item[header.key]">
-              <v-chip v-for="tag in item[header.key]" size="small" v-bind:key="tag">{{ tag.text }}</v-chip>
+              <v-chip
+                v-for="tag in item[header.key]"
+                size="header.field.size || 'small'"
+                v-bind:key="tag"
+              >{{ tag.text }}</v-chip>
             </template>
           </template>
 
@@ -81,8 +85,9 @@
             <template v-if="item[header.key] !== null && item[header.key] !== undefined">
               <template v-if="Object.keys(header.field.tag_colors || {}).length > 0">
                 <v-chip
-                  size="small"
-                  :color="header.field.tag_colors[item[header.key]]"
+                  :size="header.field.size || 'small'"
+                  :variant="header.field.variant"
+                  :color="header.field.tag_colors[getChoiceValue(item, header)]"
                 >{{ getChoiceTitle(item, header) }}</v-chip>
               </template>
               <template v-else>
@@ -155,6 +160,7 @@
             :prepend-icon="action_info.icon"
             :base-color="action_info.base_color || 'secondary'"
             @click="pressAction(action_info, key)"
+            :disabled="actionLoading"
           >
             {{ action_info.title }}
           </v-btn>
@@ -191,7 +197,7 @@
     </div>
 
     <v-dialog v-model="actionDialogConfirmation" max-width="500">
-      <v-card>
+      <v-card :disabled="actionLoading" :loading="actionLoading">
 
         <v-card-title class="d-flex justify-space-between align-center">
           <span>{{ $t('confirmation') }}: {{ getActionInfo().title }}</span>
@@ -212,15 +218,15 @@
         <v-card-actions>
           <v-spacer></v-spacer>
 
-          <v-btn :text="$t('cancel')" variant="elevated" @click="actionDialogConfirmation = false"></v-btn>
-          <v-btn :text="$t('confirm')" variant="tonal" color="primary" @click="applyAction"></v-btn>
+          <v-btn :text="$t('cancel')" variant="elevated" @click="actionDialogConfirmation = false" :disabled="actionLoading"></v-btn>
+          <v-btn :text="$t('confirm')" variant="tonal" color="primary" @click="applyAction" :disabled="actionLoading"></v-btn>
         </v-card-actions>
 
       </v-card>
     </v-dialog>
 
     <v-dialog persistent v-model="actionFormDialogOpen" max-width="1200">
-      <v-card>
+      <v-card :disabled="actionLoading" :loading="actionLoading">
 
         <v-card-title class="d-flex justify-space-between align-center">
           <span>{{ getActionInfo().title }}</span>
@@ -248,8 +254,8 @@
         <v-card-actions>
           <v-spacer></v-spacer>
 
-          <v-btn :text="$t('cancel')" variant="elevated" @click="actionFormDialogOpen = false"></v-btn>
-          <v-btn :text="$t('send')" variant="tonal" color="primary" @click="applyAction"></v-btn>
+          <v-btn :text="$t('cancel')" variant="elevated" @click="actionFormDialogOpen = false" :disabled="actionLoading"></v-btn>
+          <v-btn :text="$t('send')" variant="tonal" color="primary" @click="applyAction" :disabled="actionLoading"></v-btn>
         </v-card-actions>
 
       </v-card>
@@ -492,7 +498,7 @@ export default {
       return this.categorySchema.getTableInfo().actions[this.actionSelected]
     },
     applyAction() {
-      this.actionLoading = false
+      this.actionLoading = true
       sendTableAction({
         group: this.categorySchema.group,
         category: this.categorySchema.category,
@@ -523,7 +529,7 @@ export default {
             this.persistentMessage = response.data.persistent_message
           }
           else {
-            toast('Success')
+            toast(this.$t("successAdminAction"))
           }
         }
 
@@ -532,10 +538,46 @@ export default {
         this.actionLoading = false
         this.selected = []
         this.getListData()
-      }).catch(response => {
+      }).catch(error => {
         this.actionLoading = false
-        if (response.data) {
-          this.$refs.fieldscontainer.updateErrors(response.data)
+        console.error(`Admin action ${this.actionSelected} error:`, error)
+
+        if (!error.response) {
+          toast(error, {"type": "error", "position": "top-center"})
+          return
+        }
+
+        if (error.response.status >= 400 && error.response.status < 500) {
+          if (error.response.data.code) {
+            toast(this.$t(error.response.data.code), {"type": "error", "position": "top-center"})
+          }
+          else if (error.response.data.message) {
+            toast(error.response.data.message, {
+              "type": "error",
+              "position": "top-center",
+              "dangerouslyHTMLString": true
+            })
+          }
+          if (error.response.data.field_errors) {
+            this.$refs.fieldscontainer.updateErrors(error.response.data.field_errors)
+          }
+          return
+        }
+
+        if (error.response.status >= 500) {
+          var error_message = null
+          if (error.response.data.message) {
+            error_message = error.response.data.message
+          } else {
+            error_message = error.response.data
+          }
+          const error_msg = this.$t('adminActionError', {"action": this.actionSelected, "status": error.response.status});
+          toast(`${error_msg}</br></br>${error_message}`, {
+            "type": "error",
+            "position": "top-center",
+            "dangerouslyHTMLString": true
+          })
+          return
         }
       })
     },
@@ -559,8 +601,15 @@ export default {
     getTableInfo() {
       return this.categorySchema.getTableInfo()
     },
+    getChoiceValue(item, header) {
+      const value = item[header.key]
+      if (typeof value === 'object') return value.value
+      return value
+    },
     getChoiceTitle(item, header) {
-      return item[header.key]
+      const value = item[header.key]
+      if (typeof value === 'object') return value.title
+      return value
     }
   },
 }

@@ -99,10 +99,10 @@ export async function sendTableUpdate(kwargs) {
       resolve(response)
     }).catch(error => {
       if (error.response) {
-        if (error.response.status == 400) {
+        if (error.response.status >= 400 && error.response.status < 500) {
 
           if (error.response.data.action_messages) {
-            toast(error.response.data.action_messages.join('<br>'), {
+            toast(error.response.data.message.join('<br>'), {
               "type": "error",
               "position": "top-center",
               "dangerouslyHTMLString": true
@@ -110,13 +110,14 @@ export async function sendTableUpdate(kwargs) {
           }
           reject(error.response)
         }
-        else if (error.response.status == 500) {
-          toast(`Error! Code: ${error.response.status}</br>Text: ${error.response.data}`, {
+        else if (error.response.status >= 500) {
+          console.error('Admin action error:', error)
+          toast(`Error!</br>Code: ${error.response.status}</br>${error.response.data.message}`, {
             "type": "error",
             "position": "top-center",
             "dangerouslyHTMLString": true
           })
-          reject(null)
+          reject(error.response)
         }
       }
     })
@@ -147,27 +148,7 @@ export async function sendTableAction(kwargs) {
     }).then(response => {
       resolve(response)
     }).catch(error => {
-      if (error.response) {
-        if (error.response.status == 400) {
-
-          if (error.response.data.action_messages) {
-            toast(error.response.data.action_messages.join('<br>'), {
-              "type": "error",
-              "position": "top-center",
-              "dangerouslyHTMLString": true
-            })
-          }
-          reject(error.response)
-        }
-        else if (error.response.status == 500) {
-          toast(`Error! Code: ${error.response.status}</br>Text: ${error.response.data}`, {
-            "type": "error",
-            "position": "top-center",
-            "dangerouslyHTMLString": true
-          })
-          reject(null)
-        }
-      }
+      reject(error)
     })
   })
 }
