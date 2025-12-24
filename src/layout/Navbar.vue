@@ -52,12 +52,12 @@
 </template>
 
 <script>
-import { config_dataset } from '/src/utils/settings'
 import { categoryUrl } from '/src/api/scheme'
 
 export default {
   props: {
     adminSchema: {type: Object, required: true},
+    settings: {type: Object, required: true},
   },
   components: {
   },
@@ -81,10 +81,10 @@ export default {
       return this.$route.params.group === group_slug && this.$route.params.category === category_slug
     },
     getLogo() {
-      return config_dataset.logo_image
+      return this.settings.logo_image
     },
     getTitle() {
-      return config_dataset.title
+      return this.settings.title
     },
     toggleDrawer() {
       this.drawer = !this.drawer

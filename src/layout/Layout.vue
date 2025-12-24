@@ -1,7 +1,7 @@
 <template>
   <v-layout class="h-screen">
 
-    <template v-if="adminSchema">
+    <template v-if="settings && adminSchema">
 
       <Navbar ref="navbar" :admin-schema="adminSchema" :settings="settings"/>
 
@@ -35,19 +35,7 @@
     </template>
 
     <template v-else-if="loading">
-
-      <v-container fluid class="fill-height h-screen">
-        <v-row>
-          <v-col class="d-flex justify-center">
-            <v-progress-circular
-              :size="50"
-              color="primary"
-              indeterminate
-            ></v-progress-circular>
-          </v-col>
-        </v-row>
-      </v-container>
-
+      <Loader/>
     </template>
 
   </v-layout>
@@ -60,11 +48,13 @@ import { config_dataset } from '/src/utils/settings'
 import Navbar from '/src/layout/Navbar.vue'
 import Header from '/src/layout/Header.vue'
 import Settings from '/src/components/Settings.vue'
+import Loader from '/src/components/Loader.vue'
 
 import { getAdminSchema } from '/src/api/scheme'
 import { getToken } from '/src/utils/auth'
-import { getSettings } from '/src/utils/settings'
+import { getLocalSettings } from '/src/utils/settings'
 import { removeToken } from '/src/utils/auth'
+import { getSettings } from '/src/api/settings'
 
 export default {
   components: {
@@ -81,13 +71,23 @@ export default {
     }
   },
   async created() {
-    this.langs = config_dataset.languages
-    this.settings = getSettings()
-
     if (!getToken()) {
       this.$router.push({ path: '/login' })
       return
     }
+
+    getSettings().then(settings => {
+      this.settings = settings
+    }).catch(error => {
+      console.error('Get admin settings error:', error)
+
+      const errorResult = this.$handleError(error)
+      if (errorResult.persistentMessage) {
+        this.persistentMessageDialog = true
+        this.persistentMessage = errorResult.persistentMessage
+      }
+      return
+    })
 
     getAdminSchema().then(adminSchema => {
       this.adminSchema = adminSchema
@@ -95,15 +95,20 @@ export default {
     }).catch(error => {
       this.loading = false
       console.error('Get admin schema error:', error)
-      toast(error, {
-        "theme": "auto",
-        "type": "error",
-        "position": "top-center",
-        "dangerouslyHTMLString": true
-      })
+
       if (error.response && (error.response.status == 401 || error.response.status == 403)) {
         removeToken()
         this.$router.push({ path: '/login' })
+        return
+      }
+
+      const errorResult = this.$handleError(error)
+      if (errorResult.fieldErrors) {
+        this.$refs.fieldscontainer.updateErrors(errorResult.fieldErrors)
+      }
+      if (errorResult.persistentMessage) {
+        this.persistentMessageDialog = true
+        this.persistentMessage = errorResult.persistentMessage
       }
     })
   },

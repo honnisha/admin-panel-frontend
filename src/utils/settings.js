@@ -1,16 +1,10 @@
 import Cookies from 'js-cookie'
 
 var config_dataset = {
-  title: 'Dev Admin',
-  logo_image: null,
   backend_prefix: `${import.meta.env.VITE_APP_URL_PREFIX}/admin/`,
   static_prefix: '/static/custom_admin',
   version: '-',
   api_timeout_ms: 1000 * 5,
-  languages: {
-    ru: 'Russian',
-    en: 'English',
-  },
 }
 
 if (import.meta.env.PROD) {
@@ -43,7 +37,7 @@ const defaultSettings = {
   wysiwygSkin: 'dark-first',
 }
 
-export function getSettings() {
+export function getLocalSettings() {
   const settings = Cookies.get(SETTINGS_COOKIE_NAME, { sameSite:'strict' })
   if (settings == null) {
     return defaultSettings
@@ -51,7 +45,7 @@ export function getSettings() {
   return JSON.parse(settings)
 }
 
-export function setSettings(settings) {
+export function setLocalSettings(settings) {
   Cookies.set(SETTINGS_COOKIE_NAME, JSON.stringify(settings), { sameSite:'strict' })
 }
 
@@ -80,7 +74,7 @@ export const tinyMCEThemes = [
 ]
 
 export function getTinyMCETheme() {
-  let settings = getSettings()
+  let settings = getLocalSettings()
   if (tinyMCEThemes.indexOf(settings.tinyMCETheme) !== -1) return settings.tinyMCETheme
   return tinyMCEThemes[0]
 }

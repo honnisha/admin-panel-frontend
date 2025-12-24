@@ -109,17 +109,16 @@ export default {
         this.choices = response.data.results
         this.apiLoading = false
       }).catch(error => {
-
         this.apiLoading = false
-        let error_message = `Autocomplete ${this.categorySchema.group}.${this.categorySchema.category} search:"${this.search}" error:"${error}"`
-        console.error(error_message)
-        toast(error_message, {
-          "limit": 3,
-          "theme": "auto",
-          "type": "error",
-          "position": "top-center",
-          "dangerouslyHTMLString": true
-        })
+
+        const errorResult = this.$handleError(error)
+        if (errorResult.fieldErrors) {
+          this.$refs.fieldscontainer.updateErrors(errorResult.fieldErrors)
+        }
+        if (errorResult.persistentMessage) {
+          this.persistentMessageDialog = true
+          this.persistentMessage = errorResult.persistentMessage
+        }
       })
     },
     onChange(newValue) {

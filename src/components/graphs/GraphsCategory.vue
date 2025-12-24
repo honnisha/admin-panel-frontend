@@ -113,23 +113,22 @@ export default {
         this.responseData = response.data
       }).catch(error => {
         this.loading = false
-        if (error.response) {
+        const errorResult = this.$handleError(error)
 
-          if (error.response.data.code) {
-            toast(this.$t(error.response.data.code), {"theme": "auto", "type": "error", "position": "top-center" })
-          } else if (error.response.data.message) {
-            toast(this.$t(error.response.data.message), {"theme": "auto", "type": "error", "position": "top-center" })
-          }
-          console.error('Graph errors', error.response.data)
-          return
+        if (errorResult.fieldErrors) {
+          this.$refs.fieldscontainer.updateErrors(errorResult.fieldErrors)
         }
-        toast(`Error: ${error.response.data}`, {"theme": "auto", "type": "error", "position": "top-center"})
+        if (errorResult.persistentMessage) {
+          this.persistentMessageDialog = true
+          this.persistentMessage = errorResult.persistentMessage
+        }
       })
     },
     hasFilters() {
+      const table_filters = this.categorySchema.getGraphInfo().table_filters
       return (
         this.categorySchema.getGraphInfo().search_enabled ||
-        Object.keys(this.categorySchema.getGraphInfo().table_filters).length > 0
+        (table_filters && Object.keys(table_filters).length > 0)
       )
     },
     handleFilter(newFilterInfo) {

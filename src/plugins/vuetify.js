@@ -3,7 +3,7 @@ import { createVueI18nAdapter } from 'vuetify/locale/adapters/vue-i18n'
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
 import i18n from './i18n'
-import { getSettings } from '/src/utils/settings'
+import { getLocalSettings } from '/src/utils/settings'
 import { createVuetify } from 'vuetify'
 
 export const themes = [
@@ -11,7 +11,7 @@ export const themes = [
 ]
 
 function getTheme() {
-    const theme = getSettings().theme
+    const theme = getLocalSettings().theme
     if (themes.indexOf(theme) !== -1) return theme
     return themes[0]
 }

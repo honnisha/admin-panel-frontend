@@ -1,5 +1,5 @@
 import request from '/src/utils/request'
-import { setToken, removeToken } from '/src/utils/auth'
+import { setToken, removeToken, getLang } from '/src/utils/auth'
 import { config_dataset } from '/src/utils/settings'
 import urlJoin from 'url-join'
 
@@ -15,6 +15,10 @@ function loginApi(data) {
     url: loginUrl,
     method: 'post',
     data: post_data,
+    headers: {
+      'Accept-Language': getLang(),
+      'Cache-Control': 'no-cache',
+    },
     timeout: config_dataset.api_timeout_ms,
   })
 }

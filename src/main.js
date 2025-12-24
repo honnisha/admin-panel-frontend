@@ -1,4 +1,5 @@
 import { registerPlugins } from '@/plugins'
+import { createHandleError } from "@/utils/handleError"
 import App from './App.vue'
 import { createApp } from 'vue'
 import 'vue3-toastify/dist/index.css'
@@ -19,6 +20,9 @@ import Detail from '/src/views/Detail.vue'
 app.component('Detail', Detail)
 
 registerPlugins(app)
+
+const t = app.config.globalProperties.$t?.bind(app.config.globalProperties)
+app.config.globalProperties.$handleError = createHandleError(t ?? ((x) => String(x)))
 
 import mitt from 'mitt';
 const emitter = mitt();

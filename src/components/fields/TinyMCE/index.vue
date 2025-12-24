@@ -19,7 +19,7 @@ import { defaultProps, validateProps } from '/src/utils/fields.js'
 import load from './dynamicLoadScript'
 import { wysiwygTypes } from '@/utils/settings'
 import { config_dataset } from '@/utils/settings'
-import { getSettings, getTinyMCETheme } from '/src/utils/settings'
+import { getTinyMCETheme } from '/src/utils/settings'
 
 const plugins = ['advlist anchor autolink autosave code codesample colorpicker colorpicker contextmenu directionality emoticons fullscreen hr image imagetools insertdatetime link lists media nonbreaking noneditable pagebreak paste preview print save searchreplace spellchecker tabfocus table template textcolor textpattern visualblocks visualchars wordcount accordion customLink']
 const toolbar = [

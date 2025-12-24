@@ -1,17 +1,28 @@
 <template>
   <v-app>
+
     <v-main>
 
       <v-container fluid class="fill-height gradient-bg">
 
         <v-row>
+
           <v-col class="d-flex justify-center">
 
+            <Loader v-if="settingsLoading"/>
+
             <v-card
-              :loading="loading"
               width="400"
               class="login-header"
+              v-if="settings"
             >
+
+              <template v-if="settings && settings.languages">
+                <div class="top-right-icon">
+                  <Language :langs="settings.languages"/>
+                </div>
+              </template>
+
               <template v-slot:title>
                 <v-row justify="center" no-gutters>
                   <v-img
@@ -27,24 +38,39 @@
               </template>
 
               <v-card-text class="bg-surface-light pt-4">
+
+                <template v-if="getDescription()">
+                    <v-alert
+                      class="login-description"
+                      color="primary"
+                      variant="tonal"
+                      border="start"
+                    >
+                      <p v-html="getDescription()"></p>
+                    </v-alert>
+                </template>
+
                 <form>
                   <v-text-field
                     density="default"
                     :hideDetails="false"
+                    :loading="loading"
+                    :disabled="loading"
 
                     v-model="username"
                     :rules="[rules.required, rules.min]"
-                    label="Username"
+                    :label="$t('username')"
                     required
                     @keydown.enter.prevent="login"
                   ></v-text-field>
                   <v-text-field
                     density="default"
                     :hideDetails="false"
+                    :disabled="loading"
 
                     v-model="password"
                     :rules="[rules.required, rules.min]"
-                    label="Password"
+                    :label="$t('password')"
                     :type="show ? 'text' : 'password'"
                     :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
                     required
@@ -52,8 +78,20 @@
                     @keydown.enter.prevent="login"
                   ></v-text-field>
 
+                  <v-card
+                    color="primary"
+                    variant="outlined"
+                    class="mx-auto login-description"
+                    v-if="getLoginGreetingsMessage()"
+                  >
+                    <v-card-item>
+                      <div v-html="getLoginGreetingsMessage()">
+                      </div>
+                    </v-card-item>
+                  </v-card>
+
                   <v-row justify="end" no-gutters>
-                    <v-btn @click="login">Login</v-btn>
+                    <v-btn @click="login" :disabled="loading">{{  $t('login') }}</v-btn>
                   </v-row>
 
                 </form>
@@ -71,9 +109,11 @@
 
 <script>
 import { toast } from "vue3-toastify";
-import { config_dataset } from '/src/utils/settings'
-
+import { getSettings } from '/src/api/settings'
 import { login } from '/src/api/user'
+
+import Language from '/src/components/Language.vue'
+import Loader from '/src/components/Loader.vue'
 
 export default {
   data () {
@@ -85,15 +125,37 @@ export default {
       password: '',
       show: false,
       loading: false,
+      settingsLoading: true,
     }
   },
   watch: {
     $route: {
       immediate: true,
       handler(to, from) {
-        document.title = `${this.$t('login')} | ${config_dataset.title}`
+        document.title = `${this.$t('login')} | Admin panel`
       }
     },
+  },
+  async created() {
+    this.settingsLoading = true
+
+    getSettings().then(settings => {
+      this.settingsLoading = false
+      this.settings = settings
+
+    }).catch(error => {
+      this.settingsLoading = false
+      console.error('Get admin settings error:', error)
+
+      const errorResult = this.$handleError(error)
+      if (errorResult.fieldErrors) {
+        this.$refs.fieldscontainer.updateErrors(errorResult.fieldErrors)
+      }
+      if (errorResult.persistentMessage) {
+        this.persistentMessageDialog = true
+        this.persistentMessage = errorResult.persistentMessage
+      }
+    })
   },
   methods: {
     async validate () {
@@ -102,10 +164,16 @@ export default {
       if (valid) alert('Form is valid')
     },
     getLogo() {
-      return config_dataset.logo_image
+      return this.settings.logo_image
     },
     getTitle() {
-      return config_dataset.title
+      return this.settings.title
+    },
+    getLoginGreetingsMessage() {
+      return this.settings.login_greetings_message
+    },
+    getDescription() {
+      return this.settings.description
     },
     login() {
       if (!this.username && !this.password) return

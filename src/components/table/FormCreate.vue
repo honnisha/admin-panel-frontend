@@ -108,23 +108,15 @@ export default {
         this.$emit('created')
       }).catch(error => {
         this.loading = false
-        if (error.response) {
-          if (error.response.status === 400) {
-            this.$refs.fieldscontainer.updateErrors(error.response.data.field_errors)
 
-            if (error.response.data.code) {
-              toast(this.$t(error.response.data.code), {"theme": "auto", "type": "error", "position": "top-center" })
-            } else if (error.response.data.message) {
-              toast(this.$t(error.response.data.message), {"theme": "auto", "type": "error", "position": "top-center" })
-            }
-            console.error('Validation errors', error.response.data)
-            return
-          }
-          toast(`Error: ${error.response.data}`, {"theme": "auto", "type": "error", "position": "top-center"})
-          return
+        const errorResult = this.$handleError(error)
+        if (errorResult.fieldErrors) {
+          this.$refs.fieldscontainer.updateErrors(errorResult.fieldErrors)
         }
-        console.error(error)
-        toast(error, {"theme": "auto", "type": "error", "position": "top-center"})
+        if (errorResult.persistentMessage) {
+          this.persistentMessageDialog = true
+          this.persistentMessage = errorResult.persistentMessage
+        }
       })
     },
   },

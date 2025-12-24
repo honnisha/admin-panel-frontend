@@ -12,8 +12,8 @@
 
     <v-btn icon @click.native="$emit('toggleSettings')"><v-icon>mdi-cog-outline</v-icon></v-btn>
 
-    <v-template v-if="langs">
-      <Language :langs="langs"/>
+    <v-template v-if="settings && settings.languages">
+      <Language :langs="settings.languages"/>
     </v-template>
 
     {{ adminSchema.schema.profile.username }}
@@ -32,7 +32,6 @@ export default {
   props: {
     adminSchema: {type: Object, required: true},
     settings: {type: Object, required: true},
-    langs: {type: Object, required: true},
   },
   components: {
     Language,

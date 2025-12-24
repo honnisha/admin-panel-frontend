@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { getSettings, setSettings, tinyMCEThemes, getTinyMCETheme } from '/src/utils/settings'
+import { getLocalSettings, setLocalSettings, tinyMCEThemes, getTinyMCETheme } from '/src/utils/settings'
 import { config_dataset } from '/src/utils/settings'
 import Theme from '/src/components/Theme.vue'
 
@@ -58,9 +58,9 @@ export default {
       return config_dataset
     },
     changeTinymcetheme(value) {
-      let settings = getSettings()
+      let settings = getLocalSettings()
       settings.tinyMCETheme = value
-      setSettings(settings)
+      setLocalSettings(settings)
       this.emitter.emit("settings-changed", settings);
     }
   },

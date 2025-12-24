@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import { getSettings, setSettings } from '/src/utils/settings'
+import { getLocalSettings, setLocalSettings } from '/src/utils/settings'
 import { toast } from "vue3-toastify"
 
 export default {
@@ -115,7 +115,7 @@ export default {
   async created() {
     this.pageInfo = {
       page: 1,
-      limit: getSettings().page_size || 25,
+      limit: getLocalSettings().page_size || 25,
     }
     this.getInlineData()
   },
@@ -155,9 +155,9 @@ export default {
       return this.numPages || 0
     },
     changePagination() {
-      let settings = getSettings()
+      let settings = getLocalSettings()
       settings.page_size = this.pageInfo.limit,
-      setSettings(settings)
+      setLocalSettings(settings)
 
       this.getInlineData()
     },

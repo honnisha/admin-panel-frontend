@@ -98,28 +98,7 @@ export async function sendTableUpdate(kwargs) {
     }).then(response => {
       resolve(response)
     }).catch(error => {
-      if (error.response) {
-        if (error.response.status >= 400 && error.response.status < 500) {
-
-          if (error.response.data.action_messages) {
-            toast(error.response.data.message.join('<br>'), {
-              "type": "error",
-              "position": "top-center",
-              "dangerouslyHTMLString": true
-            })
-          }
-          reject(error.response)
-        }
-        else if (error.response.status >= 500) {
-          console.error('Admin action error:', error)
-          toast(`Error!</br>Code: ${error.response.status}</br>${error.response.data.message}`, {
-            "type": "error",
-            "position": "top-center",
-            "dangerouslyHTMLString": true
-          })
-          reject(error.response)
-        }
-      }
+      reject(error)
     })
   })
 }

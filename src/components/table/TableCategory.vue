@@ -2,8 +2,9 @@
   <div class="list-page">
 
     <div class="list-above-block">
-      <div class="header-row-filters" v-if="hasFilters()">
+      <div class="header-row-filters">
         <Filters
+          v-if="hasFilters()"
           :category-schema="categorySchema"
           :filter-info-init="filterInfo"
           @filtered="handleFilter"
@@ -278,7 +279,7 @@
 
 <script>
 import { CategorySchema, detailUrl } from '/src/api/scheme'
-import { getSettings, setSettings } from '/src/utils/settings'
+import { getLocalSettings, setLocalSettings } from '/src/utils/settings'
 import { getDataList, sendTableAction, downloadContent } from '/src/api/table'
 import moment from 'moment'
 import { toast } from "vue3-toastify"
@@ -323,7 +324,7 @@ export default {
 
     this.pageInfo = {
       page: 1,
-      limit: getSettings().page_size || 25,
+      limit: getLocalSettings().page_size || 25,
     }
 
     this.deserializeQuery()
@@ -335,7 +336,13 @@ export default {
 
       const tableInfo = this.categorySchema.getTableInfo()
 
-      for (const [slug, field] of Object.entries(tableInfo.table_schema.fields)) {
+      for (const slug of tableInfo.table_schema.list_display) {
+        const field = tableInfo.table_schema.fields[slug]
+        if (!field) {
+          console.error('Table field from listDisplay not found:', slug)
+          continue
+        }
+
         const headerData = field.header || {}
         headerData['field'] = field
         headerData['key'] = slug
@@ -361,9 +368,10 @@ export default {
       return this.selected ? this.selected.length : 0
     },
     hasFilters() {
+      const table_filters = this.categorySchema.getTableInfo().table_filters
       return (
         this.categorySchema.getTableInfo().search_enabled ||
-        Object.keys(this.categorySchema.getTableInfo().table_filters).length > 0
+        (table_filters && Object.keys(table_filters).length > 0)
       )
     },
     getTotalCount() {
@@ -435,11 +443,17 @@ export default {
         this.pageData = responseData
         this.loading = false
       }).catch(error => {
-        this.listLoading = false
-        console.error('Get list error:' + error)
-        toast(`Error: ${error}`, {
-          "limit": 3, "theme": "auto", "type": "warning", "position": "top-center",
-        })
+        this.loading = false
+        console.error('Get list error:', error)
+
+        const errorResult = this.$handleError(error)
+        if (errorResult.fieldErrors) {
+          this.$refs.fieldscontainer.updateErrors(errorResult.fieldErrors)
+        }
+        if (errorResult.persistentMessage) {
+          this.persistentMessageDialog = true
+          this.persistentMessage = errorResult.persistentMessage
+        }
       })
     },
     handleFilter(newFilterInfo) {
@@ -458,9 +472,9 @@ export default {
       return this.hasActons()
     },
     changePagination() {
-      let settings = getSettings()
+      let settings = getLocalSettings()
       settings.page_size = this.pageInfo.limit
-      setSettings(settings)
+      setLocalSettings(settings)
 
       this.selected = []
       this.serializeQuery()
@@ -542,42 +556,13 @@ export default {
         this.actionLoading = false
         console.error(`Admin action ${this.actionSelected} error:`, error)
 
-        if (!error.response) {
-          toast(error, {"type": "error", "position": "top-center"})
-          return
+        const errorResult = this.$handleError(error)
+        if (errorResult.fieldErrors) {
+          this.$refs.fieldscontainer.updateErrors(errorResult.fieldErrors)
         }
-
-        if (error.response.status >= 400 && error.response.status < 500) {
-          if (error.response.data.code) {
-            toast(this.$t(error.response.data.code), {"type": "error", "position": "top-center"})
-          }
-          else if (error.response.data.message) {
-            toast(error.response.data.message, {
-              "type": "error",
-              "position": "top-center",
-              "dangerouslyHTMLString": true
-            })
-          }
-          if (error.response.data.field_errors) {
-            this.$refs.fieldscontainer.updateErrors(error.response.data.field_errors)
-          }
-          return
-        }
-
-        if (error.response.status >= 500) {
-          var error_message = null
-          if (error.response.data.message) {
-            error_message = error.response.data.message
-          } else {
-            error_message = error.response.data
-          }
-          const error_msg = this.$t('adminActionError', {"action": this.actionSelected, "status": error.response.status});
-          toast(`${error_msg}</br></br>${error_message}`, {
-            "type": "error",
-            "position": "top-center",
-            "dangerouslyHTMLString": true
-          })
-          return
+        if (errorResult.persistentMessage) {
+          this.persistentMessageDialog = true
+          this.persistentMessage = errorResult.persistentMessage
         }
       })
     },

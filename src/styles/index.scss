@@ -239,3 +239,14 @@ body {
 .fade-leave-to {
   opacity: 0;
 }
+
+.login-description {
+  margin-bottom: 15px;
+}
+
+.top-right-icon {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+}

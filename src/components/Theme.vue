@@ -23,7 +23,7 @@
 
 <script setup>
 import { useTheme } from 'vuetify'
-import { getSettings, setSettings } from '/src/utils/settings'
+import { getLocalSettings, setLocalSettings } from '/src/utils/settings'
 
 const theme = useTheme()
 
@@ -31,8 +31,8 @@ const currentTheme = ref(theme.global.name.value)
 
 watch(currentTheme, async (newCurrentTheme, oldCurrentTheme) => {
   theme.global.name.value = newCurrentTheme
-  let settings = getSettings()
+  let settings = getLocalSettings()
   settings.theme = theme.global.name.value
-  setSettings(settings)
+  setLocalSettings(settings)
 })
 </script>

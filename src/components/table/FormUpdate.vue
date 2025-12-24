@@ -84,14 +84,17 @@ export default {
         this.loading = false
         if (error.response && error.response.status === 404) {
           this.$router.push({ path: '/404' })
+          return
         }
-        console.error('Get detail error:', error)
-        toast(error, {
-          "theme": "auto",
-          "type": "error",
-          "position": "top-center",
-          "dangerouslyHTMLString": true
-        })
+
+        const errorResult = this.$handleError(error)
+        if (errorResult.fieldErrors) {
+          this.$refs.fieldscontainer.updateErrors(errorResult.fieldErrors)
+        }
+        if (errorResult.persistentMessage) {
+          this.persistentMessageDialog = true
+          this.persistentMessage = errorResult.persistentMessage
+        }
       })
     },
     canUpdate() {
@@ -119,22 +122,11 @@ export default {
         }
       }).catch(error => {
         this.loading = false
-        if (error.response) {
-          if (error.response.status === 400) {
-            this.$refs.fieldscontainer.updateErrors(error.response.data.field_errors)
 
-            if (error.response.data.code) {
-              toast(this.$t(error.response.data.code), {"theme": "auto", "type": "error", "position": "top-center" })
-            } else if (error.response.data.message) {
-              toast(this.$t(error.response.data.message), {"theme": "auto", "type": "error", "position": "top-center" })
-            }
-            return
-          }
-          console.error('Api error:', error.response.data)
-          toast(`Error: ${error.response.data}`, {"theme": "auto", "type": "error", "position": "top-center"})
-          return
+        const errorResult = this.$handleError(error)
+        if (errorResult.fieldErrors) {
+          this.$refs.fieldscontainer.updateErrors(errorResult.fieldErrors)
         }
-        toast(error, {"theme": "auto", "type": "error", "position": "top-center"})
       })
     },
   },
