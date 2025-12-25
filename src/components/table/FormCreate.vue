@@ -1,6 +1,5 @@
 <template>
   <v-dialog
-    max-width="1200"
     content-class="dialog-top-position"
     persistent
     :retain-focus="false"

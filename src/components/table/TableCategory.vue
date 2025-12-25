@@ -226,7 +226,7 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog persistent v-model="actionFormDialogOpen" max-width="1200">
+    <v-dialog persistent v-model="actionFormDialogOpen" class="action-form-dialog">
       <v-card :disabled="actionLoading" :loading="actionLoading">
 
         <v-card-title class="d-flex justify-space-between align-center">
@@ -262,7 +262,7 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="persistentMessageDialog" max-width="1200">
+    <v-dialog v-model="persistentMessageDialog" class="persistent-message-dialog">
       <v-card>
 
         <v-card-text v-html="persistentMessage"></v-card-text>

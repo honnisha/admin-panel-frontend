@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="form-update">
     <FieldsContainer
       ref="fieldscontainer"
       form-type="edit"

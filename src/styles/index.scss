@@ -1,3 +1,5 @@
+$model-form-width: 1200px;
+
 @import '/src/styles/list.scss';
 @import '/src/styles/edit.scss';
 
@@ -168,6 +170,13 @@ body {
 .login-header {
     background-color: rgb(var(--v-theme-darken3)) !important;
 }
+.create-dialog {
+    max-width: $model-form-width;
+}
+.v-card-actions {
+    padding: 20px 25px;
+}
+
 .mce-fullscreen {
     .create-dialog {
         .v-overlay__content {

@@ -36,13 +36,16 @@
         <div v-for="(field, field_slug) in tableSchema.fields" v-bind:key="field_slug">
 
           <v-row class="fields-cell">
-            <v-col cols="3">
+            <div class="label-col">
               <v-list-subheader>
                 <p class="form-title">{{ field.label }}</p> <p v-if="field.required" class="required-title">*</p>
               </v-list-subheader>
-            </v-col>
+            </div>
 
-            <v-col cols="9" class="form-field-container">
+            <div
+              class="form-field-container"
+              :class="{ 'is-required': field.required }"
+            >
 
               <!-- Translations -->
               <template v-if="Object.keys(translations).indexOf(field_slug) !== -1">
@@ -125,7 +128,7 @@
                 </p>
               </template>
 
-            </v-col>
+            </div>
           </v-row>
 
         </div>
