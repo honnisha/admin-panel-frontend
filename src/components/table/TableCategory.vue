@@ -595,7 +595,11 @@ export default {
       const value = item[header.key]
       if (typeof value === 'object') return value.title
       return value
-    }
+    },
+    createdEvent() {
+      this.serializeQuery()
+      this.getListData()
+    },
   },
 }
 </script>

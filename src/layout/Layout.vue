@@ -13,22 +13,20 @@
         @toggle-settings="$refs.settings.toggle()"
       />
 
-      <v-main class="d-flex page-container">
+      <v-main class="page-container">
         <Settings ref="settings"/>
 
-        <div class="router-container">
-          <router-view v-slot="{ Component }">
-            <Transition name="fade" mode="in-out">
-              <component
-                :is="Component"
-                :key="$route.path"
-                :admin-schema="adminSchema"
-                :settings="settings"
-                class="route-view"
-              />
-            </Transition>
-          </router-view>
-        </div>
+        <router-view v-slot="{ Component }">
+          <Transition name="fade">
+            <component
+              :is="Component"
+              :key="$route.path"
+              :admin-schema="adminSchema"
+              :settings="settings"
+              class="route-view"
+            />
+          </Transition>
+        </router-view>
 
       </v-main>
 
