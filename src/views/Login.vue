@@ -2,6 +2,7 @@
   <v-app>
 
     <v-main>
+      <Settings ref="settings"/>
 
       <v-container fluid class="fill-height gradient-bg">
 
@@ -17,11 +18,12 @@
               v-if="settings"
             >
 
-              <template v-if="settings && settings.languages">
-                <div class="top-right-icon">
+              <div class="top-right-icon">
+                <template v-if="settings && settings.languages">
                   <Language :langs="settings.languages"/>
-                </div>
-              </template>
+                </template>
+                <v-btn icon @click.native="$refs.settings.toggle()"><v-icon>mdi-cog-outline</v-icon></v-btn>
+              </div>
 
               <template v-slot:title>
                 <v-row justify="center" no-gutters>
@@ -112,6 +114,7 @@ import { toast } from "vue3-toastify";
 import { getSettings } from '/src/api/settings'
 import { login } from '/src/api/user'
 
+import Settings from '/src/components/Settings.vue'
 import Language from '/src/components/Language.vue'
 import Loader from '/src/components/Loader.vue'
 
