@@ -78,8 +78,8 @@ export default {
         pk: this.pk,
       }).then(response => {
         this.loading = false
-        this.formData = response.data
-        this.$refs.fieldscontainer.updateFormData(response.data)
+        this.formData = response.data.data
+        this.$refs.fieldscontainer.updateFormData(response.data.data)
       }).catch(error => {
         this.loading = false
         if (error.response && error.response.status === 404) {

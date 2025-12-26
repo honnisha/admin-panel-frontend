@@ -187,24 +187,10 @@ export default {
         this.loading = false
       }).catch(error => {
         this.loading = false
-        let error_message = error.message
-        if (error.response) {
-          const data = error.response.data || {}
-
-          if (data['code']) {
-            error_message = this.$t(data['code'])
-          }
-          else {
-            error_message = data['message']
-          }
+        const errorResult = this.$handleError(error)
+        if (errorResult.persistentMessage) {
+          this.persistentMessage = errorResult.persistentMessage
         }
-        toast(error_message, {
-          "limit": 3,
-          "theme": "auto",
-          "type": "error",
-          "position": "top-center",
-          "dangerouslyHTMLString": true
-        })
       })
     },
   },

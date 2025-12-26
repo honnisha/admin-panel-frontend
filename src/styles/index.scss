@@ -54,8 +54,13 @@ body {
     .v-list-item__spacer {
         width: 10px !important;
     }
-    .navbar-link {
-        background-color: rgb(var(--v-theme-darken4)) !important;
+    .navbar-link:not(.v-list-item--active) {
+        //background-color: rgb(var(--v-theme-darken3)) !important;
+        background-color: color-mix(
+            in srgb,
+            rgb(var(--v-theme-darken3)) 92%,
+            black
+        ) !important;
     }
 }
 
@@ -98,6 +103,11 @@ body {
         display: flex;
         margin: 2px;
         width: 300px;
+    }
+    @media (max-width: 1280px) {
+        .filter-element {
+            width: 200px;
+        }
     }
     .filter-button {
         margin: 2px;
@@ -245,4 +255,10 @@ body {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.v-application[class*="Dark"] {
+    .login-description .v-alert__content,.v-card-item__content {
+        color: #fff;
+    }
 }
