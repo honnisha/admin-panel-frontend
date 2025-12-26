@@ -152,6 +152,7 @@ import JSONFormsField from '/src/components/fields/JSONForms.vue'
 import JSONEditorField from '/src/components/fields/JSONEditor.vue'
 import RelatedField from '/src/components/fields/Related.vue'
 import DateTimeField from '/src/components/fields/DateTime.vue'
+import ArrayField from '/src/components/fields/ArrayField.vue'
 
 import TinyMCEField from '/src/components/fields/TinyMCE/index.vue'
 // import CKEditor from '/src/components/fields/CKEditor.vue'
@@ -196,6 +197,7 @@ export default {
       if (['image', 'file'].indexOf(field.type) !== -1) return FileField
       if (['datetime', 'date', 'time'].indexOf(field.type) !== -1) return DateTimeField
       if (['related'].indexOf(field.type) !== -1) return RelatedField
+      if (['array'].indexOf(field.type) !== -1) return ArrayField
 
       if (['field', 'string', 'email', 'url', 'slug'].indexOf(field.type) !== -1) {
         if (field.wysiwyg) return wysiwyg
