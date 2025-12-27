@@ -6,7 +6,8 @@
         <Filters
           v-if="hasFilters()"
           :category-schema="categorySchema"
-          :filter-info-init="filterInfo"
+          :filters-init="filters"
+          :search-init="search"
           @filtered="handleFilter"
           :loading="listLoading"
 
@@ -279,6 +280,7 @@
 </template>
 
 <script>
+import { applyFiltersToQuery, extractFiltersFromQuery } from '/src/utils/filters'
 import { CategorySchema, detailUrl } from '/src/api/scheme'
 import { getLocalSettings, setLocalSettings } from '/src/utils/settings'
 import { getDataList, sendTableAction, downloadContent } from '/src/api/table'
@@ -299,15 +301,12 @@ export default {
   data() {
     return {
       loading: false,
-      filters: {},
       pageData: {},
       pageInfo: {},
       headers: {},
       selected: [],
-      filterInfo: {
-        search: null,
-        filters: {},
-      },
+      search: null,
+      filters: {},
       perPageOptions: [25, 50, 100, 150],
 
       actionToAll: false,
@@ -405,15 +404,21 @@ export default {
       const page = this.$route.query.page
       if (page) this.pageInfo.page = parseInt(page)
       const limit = this.$route.query.limit
-      if (limit) this.pageInfo.limit = parseInt(limit)
+
+      if (limit) {
+        let parsed = parseInt(limit)
+        this.pageInfo.limit = Math.min(150, Math.max(25, parsed))
+      }
 
       const ordering = this.$route.query.ordering
       if (ordering) this.ordering = ordering
 
+      const search = this.$route.query.search
+      if (search) this.search = search
+
       // Deserialize filters
-      if (this.$route.query.filters) {
-        this.filterInfo = JSON.parse(decodeURIComponent(this.$route.query.filters))
-      }
+      const table_filters = this.categorySchema.getTableInfo().table_filters || {}
+      this.filters = extractFiltersFromQuery(this.$route, Object.keys(table_filters))
     },
     serializeQuery() {
       // Change url params only if group presented
@@ -424,11 +429,10 @@ export default {
       if (this.pageInfo.limit) newQuery.limit = this.pageInfo.limit
 
       if (this.ordering) newQuery.ordering = this.ordering
+      if (this.search) newQuery.search = this.search
 
       // Serialize filters
-      if (Object.keys(this.filterInfo).length > 0) {
-        newQuery.filters = encodeURIComponent(JSON.stringify(this.filterInfo))
-      }
+      newQuery = applyFiltersToQuery(newQuery, this.filters)
 
       this.$router.push({name: this.$route.name, query: newQuery})
     },
@@ -436,7 +440,8 @@ export default {
       this.loading = true
       getDataList({
         pageInfo: this.pageInfo,
-        filters: this.filterInfo,
+        filters: this.filters,
+        search: this.search,
         ordering: this.ordering,
 
         group: this.categorySchema.group,
@@ -458,9 +463,10 @@ export default {
         }
       })
     },
-    handleFilter(newFilterInfo) {
+    handleFilter(filters, search) {
       this.pageInfo.page = 1
-      this.filterInfo = newFilterInfo
+      this.filters = filters
+      this.search = search
       this.serializeQuery()
       this.getListData()
     },
@@ -523,7 +529,8 @@ export default {
         pks: this.selected,
         formData: this.actionFormData || {},
         sendToAll: this.actionToAll,
-        filters: this.filterInfo,
+        filters: this.filters,
+        search: this.search,
       }).then(response => {
 
         if(response.headers['content-type'] !== 'application/json') {

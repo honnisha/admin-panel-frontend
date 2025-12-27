@@ -6,7 +6,8 @@
         v-if="method.filterset_fields"
         :settings="settings"
         :filterset-fields="method.filterset_fields"
-        :filter-info-init="filterInfo"
+        :filters-init="filters"
+        :search-init="search"
         @filtered="handleFilter"
         :loading="listLoading"
       />
@@ -101,10 +102,8 @@ export default {
       inlineData: {},
       listLoading: false,
       numPages: 0,
-      filterInfo: {
-        search: null,
-        filters: {},
-      },
+      search: null,
+      filters: {},
       pageInfo: {
         page: 1,
         limit: 25,
@@ -134,7 +133,8 @@ export default {
         url: url,
         method: this.method.methodHttp,
         pageInfo: this.pageInfo,
-        filter_info: this.filterInfo,
+        filters: this.filters,
+        search: this.search,
       }).then(response => {
         this.inlineData = response
         this.numPages = this.inlineData.num_pages
@@ -161,8 +161,9 @@ export default {
 
       this.getInlineData()
     },
-    handleFilter(newFilterInfo) {
-      this.filterInfo = newFilterInfo
+    handleFilter(filters, search) {
+      this.filters = filters
+      this.search = search
       this.getInlineData()
     },
   },

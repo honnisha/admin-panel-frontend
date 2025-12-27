@@ -117,6 +117,8 @@ export async function sendTableAction(kwargs) {
         form_data: kwargs.formData,
 
         filters: kwargs.filters,
+        search: kwargs.search,
+
         send_to_all: kwargs.sendToAll,
       },
       headers: {

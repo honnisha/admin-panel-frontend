@@ -5,7 +5,8 @@
       <div class="header-row-filters" v-if="hasFilters()">
         <Filters
           :category-schema="categorySchema"
-          :filter-info-init="filterInfo"
+          :filters-init="filters"
+          :search-init="search"
           @filtered="handleFilter"
           :loading="loading"
 
@@ -80,10 +81,8 @@ export default {
   },
   data() {
     return {
-      filterInfo: {
-        search: null,
-        filters: {},
-      },
+      search: null,
+      filters: {},
       loading: false,
       responseData: null,
       types: {
@@ -107,7 +106,8 @@ export default {
       getGraphData({
         group: this.categorySchema.group,
         category: this.categorySchema.category,
-        filters: this.filterInfo,
+        filters: this.filters,
+        search: this.search,
       }).then(response => {
         this.loading = false
         this.responseData = response.data
@@ -131,8 +131,9 @@ export default {
         (table_filters && Object.keys(table_filters).length > 0)
       )
     },
-    handleFilter(newFilterInfo) {
-      this.filterInfo = newFilterInfo
+    handleFilter(filters, search) {
+      this.filters = filters
+      this.search = search
       this.updateGraphs()
     },
     getGraphInfo() {

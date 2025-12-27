@@ -17,7 +17,7 @@
             variant="solo"
             prepend-inner-icon="mdi-magnify"
 
-            v-model="filterInfo.search"
+            v-model="search"
             :clearable="true"
             :label="$t('search')"
             @keydown.enter.prevent="applyFilter"
@@ -31,6 +31,7 @@
       v-for="(filter, filter_name) in fieldsInfo"
       v-bind:key="filter_name"
       class="filter-element"
+      v-on:keydown.enter.prevent="applyFilter"
     >
       <component
         v-if="getFieldComponent(filter)"
@@ -47,7 +48,6 @@
         :is-filter="true"
 
         @changed="value => _updateValue(value, filter_name)"
-        @keydown.enter.prevent="applyFilter"
       />
       <template v-else>
         {{ filter }}
@@ -80,6 +80,7 @@
 </template>
 
 <script>
+import { normalizeFilters } from '/src/utils/filters'
 import { CategorySchema } from '/src/api/scheme'
 import BooleanFilter from '/src/components/fields/BooleanFilter.vue'
 import StringField from '/src/components/fields/String.vue'
@@ -100,17 +101,22 @@ export default {
     searchHelp: {type: String, required: false},
     fieldsInfo: {type: Object, required: true},
 
-    filterInfoInit: {type: Object, required: false},
+    filtersInit: {type: Object, required: false},
+    searchInit: {type: String, required: false},
   },
   emits: ["filtered"],
   data() {
     return {
-      filterInfo: {},
+      filters: {},
+      search: null,
     }
   },
   created() {
-    if (this.filterInfoInit) {
-      this.filterInfo = this.filterInfoInit
+    if (this.initFilters) {
+      this.filters = this.initFilters
+    }
+    if (this.initSearch) {
+      this.search = this.initSearch
     }
   },
   methods: {
@@ -123,11 +129,11 @@ export default {
       if (['boolean'].indexOf(filter.type) !== -1) return BooleanFilter
     },
     _updateValue(value, filter_name) {
-      this.filterInfo.filters[filter_name] = value
+      this.filters[filter_name] = value
     },
     applyFilter() {
       if (this.loading) return
-      this.$emit('filtered', this.filterInfo)
+      this.$emit('filtered', normalizeFilters(this.filters), this.search)
     },
   },
 }

@@ -316,19 +316,23 @@ body {
 }
 
 // Подсветка полей в фльтрах
-.v-field[class*="dark" i] {
+.filters-container .v-field[class*="dark" i] {
     .v-field__overlay {
         background-color: rgba(var(--v-theme-on-surface), 0.025) !important;
     }
 }
 
 // Поля для тёмной темы
-[class*="dark" i].v-field {
-  background-color: rgba(var(--v-theme-on-surface), 0.03) !important;
+.fields-cell {
+    .v-input[class*="dark" i]:not(.v-input--disabled) .v-field {
+        background-color: rgba(var(--v-theme-on-surface), 0.02) !important;
+    }
+    .v-input[class*="dark" i].v-input--disabled {
+        background-color: rgba(var(--v-theme-on-surface), 0.001) !important;
+    }
 }
-.v-input[class*="dark" i].v-input--disabled {
-    background-color: rgba(var(--v-theme-on-surface), 0.01) !important;
-}
+
+// Затемнение у всплывающих окон
 .v-overlay[class*="dark" i] .v-overlay__scrim {
     background-color: rgba(0, 0, 0, 0.8) !important;
 }

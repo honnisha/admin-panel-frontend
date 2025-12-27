@@ -34,6 +34,7 @@
           auto-apply
           time-picker-inline
           :format="format"
+          :dark="this.$vuetify.theme.current.dark"
 
           :range="isRange()"
           :enable-time-picker="isEnableTimePicker()"
@@ -98,7 +99,12 @@ export default {
     },
     getIcons() {
       if (this.isTimePicker()) return ['mdi-clock-time-eight-outline']
-      if (this.isEnableTimePicker()) return ['mdi-calendar-range', 'mdi-clock-time-eight-outline']
+      if (this.isEnableTimePicker()) {
+        if (this.isRange()) {
+          return ['calendar-expand-horizontal-outline', 'mdi-clock-time-eight-outline']
+        }
+        return ['mdi-calendar-range', 'mdi-clock-time-eight-outline']
+      }
       if (this.isDate()) return ['mdi-calendar-range']
       console.error('DateTime bad type:', this.field.type)
     },
@@ -135,6 +141,9 @@ export default {
       return moment(date).format('yyyy-MM-DDTHH:mm:ss')
     },
     isRange() {
+      if (this.field.range) {
+        return true
+      }
       const dates = [
         'date_range',
         'datetime_range',

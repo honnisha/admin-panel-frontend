@@ -6,7 +6,8 @@
         v-if="method.filterset_fields"
         :settings="settings"
         :filterset-fields="method.filterset_fields"
-        :filter-info-init="filterInfo"
+        :filters-init="filters"
+        :search-init="search"
         @filtered="handleFilter"
       />
     </div>
@@ -99,10 +100,8 @@ export default {
     return {
       loadData: true,
       responseData: null,
-      filterInfo: {
-        search: null,
-        filters: {},
-      },
+      search: null,
+      filters: {},
       types: {
         line: ChartLine,
         bar: Bar,
@@ -131,8 +130,9 @@ export default {
         "dangerouslyHTMLString": true
       })
     },
-    handleFilter(newFilterInfo) {
-      this.filterInfo = newFilterInfo
+    handleFilter(filters, search) {
+      this.filters = filters
+      this.search = search
       this.getInlineData()
     },
     getInlineData() {
@@ -142,7 +142,8 @@ export default {
       getList({
         url: url,
         method: this.method.methodHttp,
-        filter_info: this.filterInfo,
+        filters: this.filters,
+        search: this.search,
       }).then(response => {
         this.responseData = response
         this.loadData = false
