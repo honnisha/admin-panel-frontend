@@ -297,10 +297,10 @@ body {
     }
 
     // Цвета для статусов
-    .v-chip {
+    .table-choice-chip.v-chip {
         position: relative;
     }
-    .v-chip::after {
+    .table-choice-chip.v-chip::after {
         content: "";
         position: absolute;
         inset: 0;
@@ -308,7 +308,7 @@ body {
         pointer-events: none;
         z-index: 0;
     }
-    .v-chip__content {
+    .table-choice-chip .v-chip__content {
         position: relative;
         z-index: 1;
         color: rgb(var(--v-theme-on-surface));
@@ -323,9 +323,12 @@ body {
 }
 
 // Поля для тёмной темы
-.v-input[class*="dark" i]:not(.v-input--disabled) {
-    background-color: rgba(var(--v-theme-on-surface), 0.04) !important;
+[class*="dark" i].v-field {
+  background-color: rgba(var(--v-theme-on-surface), 0.03) !important;
 }
 .v-input[class*="dark" i].v-input--disabled {
     background-color: rgba(var(--v-theme-on-surface), 0.01) !important;
+}
+.v-overlay[class*="dark" i] .v-overlay__scrim {
+    background-color: rgba(0, 0, 0, 0.8) !important;
 }

@@ -86,6 +86,7 @@
             <template v-if="item[header.key] !== null && item[header.key] !== undefined">
               <template v-if="Object.keys(header.field.tag_colors || {}).length > 0">
                 <v-chip
+                  class="table-choice-chip"
                   :size="header.field.size || 'small'"
                   :variant="header.field.variant"
                   :color="header.field.tag_colors[getChoiceValue(item, header)]"
