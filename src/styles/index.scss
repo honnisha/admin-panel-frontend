@@ -272,9 +272,12 @@ body {
     }
 }
 
-.fade-enter-active,
+.fade-enter-active {
+  transition: opacity 0.05s ease;
+}
+
 .fade-leave-active {
-  transition: opacity 0.15s ease;
+  transition: opacity 0.05s linear;
 }
 
 .fade-enter-from,
