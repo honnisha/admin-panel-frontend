@@ -307,6 +307,7 @@ export default {
         search: null,
         filters: {},
       },
+      perPageOptions: [25, 50, 100, 150],
 
       actionToAll: false,
       actionFormData: null,

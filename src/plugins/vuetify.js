@@ -19,6 +19,8 @@ function getTheme() {
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 // https://www.w3schools.com/colors/colors_picker.asp
 
+const darkSurface = 'rgb(26, 29, 30)'
+
 const greenLight = {
   dark: false,
   colors: {
@@ -42,7 +44,7 @@ const greenLight = {
 const greenDark = {
   dark: true,
   colors: {
-    surface: '#1a1d1e',
+    surface: darkSurface,
 
     light2: '#22594a',
     light3: '#91eeca',
@@ -84,7 +86,7 @@ const blueLight = {
 const blueDark = {
   dark: true,
   colors: {
-    surface: 'rgb(28, 30, 31)',
+    surface: darkSurface,
 
     light2: '#1f2223',
     light3: '#dee5ed',
@@ -126,7 +128,7 @@ const deepPurpleLight = {
 const deepPurpleDark = {
   dark: true,
   colors: {
-    surface: '#1a1d1e',
+    surface: darkSurface,
 
     light2: '#34383a',
     light3: '#B39DDB',

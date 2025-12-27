@@ -108,6 +108,19 @@ body {
         .filter-element {
             width: 200px;
         }
+
+        // Кнопка поиска без текста
+        .filter-button {
+            .v-btn__content {
+                display: none;
+            }
+            .v-btn__prepend {
+                margin-inline: 0;
+            }
+            .v-btn {
+                min-width: 48px;
+            }
+        }
     }
     .filter-button {
         margin: 2px;
@@ -257,12 +270,6 @@ body {
   opacity: 0;
 }
 
-.v-application[class*="Dark"] {
-    .login-description .v-alert__content,.v-card-item__content {
-        color: #fff;
-    }
-}
-
 .array-field-line {
     margin-bottom: 4px !important;
 }
@@ -273,4 +280,52 @@ body {
 }
 .array-field-line-remove {
     height: 40px !important;
+}
+.boolean-switch[class*="dark" i] {
+  margin-left: 0;
+  padding-left: 10px;
+}
+
+.v-data-table[class*="dark" i] {
+    // Черта между строками
+    td,.v-data-table__th {
+        border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.06) !important;
+    }
+    // Сылки в таблице
+    .table-link {
+        color: rgb(136, 168, 196);
+    }
+
+    // Цвета для статусов
+    .v-chip {
+        position: relative;
+    }
+    .v-chip::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        pointer-events: none;
+        z-index: 0;
+    }
+    .v-chip__content {
+        position: relative;
+        z-index: 1;
+        color: rgb(var(--v-theme-on-surface));
+    }
+}
+
+// Подсветка полей в фльтрах
+.v-field[class*="dark" i] {
+    .v-field__overlay {
+        background-color: rgba(var(--v-theme-on-surface), 0.025) !important;
+    }
+}
+
+// Поля для тёмной темы
+.v-input[class*="dark" i]:not(.v-input--disabled) {
+    background-color: rgba(var(--v-theme-on-surface), 0.04) !important;
+}
+.v-input[class*="dark" i].v-input--disabled {
+    background-color: rgba(var(--v-theme-on-surface), 0.01) !important;
 }
