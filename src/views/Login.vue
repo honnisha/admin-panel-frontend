@@ -1,7 +1,7 @@
 <template>
   <v-app>
 
-    <v-main>
+    <v-main class="login-page">
       <Settings ref="settings"/>
 
       <v-container fluid class="fill-height gradient-bg">

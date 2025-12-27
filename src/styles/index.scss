@@ -246,18 +246,30 @@ body {
     padding-top: 10px;
 }
 
-.login-description {
-  margin-bottom: 15px;
+.login-page {
+    .login-description {
+        margin-bottom: 15px;
+    }
+
+    [class*="theme--"][class*="dark" i]
+    .login-description .v-alert__content {
+        color: rgb(var(--v-theme-on-surface));
+    }
+
+    [class*="theme--"][class*="dark" i]
+    .v-card-item__content {
+        color: rgb(var(--v-theme-on-surface));
+    }
 }
 
 .top-right-icon {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  z-index: 1000;
-  .v-btn {
-      margin-left: 15px;
-  }
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 1000;
+    .v-btn {
+        margin-left: 15px;
+    }
 }
 
 .fade-enter-active,
