@@ -40,7 +40,6 @@
 </template>
 
 <script>
-import { toast } from "vue3-toastify"
 import { config_dataset } from '/src/utils/settings'
 
 import Navbar from '/src/layout/Navbar.vue'

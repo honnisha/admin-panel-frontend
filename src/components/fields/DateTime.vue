@@ -92,19 +92,19 @@ export default {
       return moment(this.value).format(this.getFormat())
     },
     getFormat() {
-      if (this.isTimePicker()) return 'HH:mm'
       if (this.isEnableTimePicker()) return 'YYYY-MM-DD HH:mm'
       if (this.isDate()) return 'YYYY-MM-DD'
+      if (this.isTimePicker()) return 'HH:mm'
       console.error('DateTime bad type:', this.field.type)
     },
     getIcons() {
-      if (this.isTimePicker()) return ['mdi-clock-time-eight-outline']
       if (this.isEnableTimePicker()) {
         if (this.isRange()) {
-          return ['calendar-expand-horizontal-outline', 'mdi-clock-time-eight-outline']
+          return ['mdi-calendar-expand-horizontal-outline', 'mdi-clock-time-eight-outline']
         }
         return ['mdi-calendar-range', 'mdi-clock-time-eight-outline']
       }
+      if (this.isTimePicker()) return ['mdi-clock-time-eight-outline']
       if (this.isDate()) return ['mdi-calendar-range']
       console.error('DateTime bad type:', this.field.type)
     },
@@ -141,33 +141,16 @@ export default {
       return moment(date).format('yyyy-MM-DDTHH:mm:ss')
     },
     isRange() {
-      if (this.field.range) {
-        return true
-      }
-      const dates = [
-        'date_range',
-        'datetime_range',
-      ]
-      return dates.indexOf(this.field.type) !== -1
+      return this.field.range
     },
     isDate() {
-      const date = [
-        'date',
-      ]
-      return date.indexOf(this.field.type) !== -1
+      return this.field.include_date
     },
     isEnableTimePicker() {
-      const time = [
-        'datetime',
-        'time',
-      ]
-      return time.indexOf(this.field.type) !== -1
+      return this.field.include_date && this.field.include_time
     },
     isTimePicker() {
-      const time = [
-        'time',
-      ]
-      return time.indexOf(this.field.type) !== -1
+      return this.field.include_time && !this.field.include_date
     },
   },
 }

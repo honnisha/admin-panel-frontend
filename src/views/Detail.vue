@@ -3,13 +3,13 @@
 </template>
 
 <script>
-import { config_dataset } from '/src/utils/settings'
 import { categoryUrl } from '/src/api/scheme'
 import FormUpdate from '/src/components/table/FormUpdate.vue'
 
 export default {
   props: {
     adminSchema: {type: Object, required: true},
+    settings: {type: Object, required: true},
 
     group: {type: String, required: true},
     category: {type: String, required: true},
@@ -36,7 +36,7 @@ export default {
       immediate: true,
       handler(to, from) {
         const categorySchema = this.adminSchema.get_category(this.group, this.category)
-        document.title = `${categorySchema.title} | ${config_dataset.title}`
+        document.title = `${categorySchema.title} #${this.pk} | ${this.settings?.title}`
       }
     },
   },

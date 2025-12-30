@@ -49,6 +49,7 @@ const messages = {
     field_required: 'Field is required',
     errorMessage: 'Unexpected server error!\nPlease try again later or contact support.\nStatus: {status}\n\n{errorText}',
     successAdminAction: 'The action has been completed successfully.',
+    validationErrors: 'A validation error occurred while processing the request. Please try again later or contact support if the issue persists.\n\n{errors}',
   },
   ru: {
     sectionSettings: 'Настройки раздела',
@@ -95,6 +96,7 @@ const messages = {
     field_required: 'Обязательное поле',
     errorMessage: 'Непредвиденная ошибка!\nПожалуйста, попробуйте ещё раз позже или обратитесь в поддержку.\nСтатус: {status}\n\n{errorText}',
     successAdminAction: 'Действие успешно выполнено.',
+    validationErrors: 'Ошибка валидации зпроса. Пожалуйста, попробуйте ещё раз позже или обратитесь в поддержку.\n\n{errors}',
   },
   cs: {
     mainPage: 'Hlavní stránka',

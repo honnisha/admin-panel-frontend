@@ -51,7 +51,7 @@ export default {
       handler(to, from) {
         const categorySchema = this.adminSchema.get_category(this.group, this.category)
         if (categorySchema) {
-          document.title = `${categorySchema.title} | ${config_dataset.title}`
+          document.title = `${categorySchema.title} | ${this.settings?.title}`
         }
       }
     },

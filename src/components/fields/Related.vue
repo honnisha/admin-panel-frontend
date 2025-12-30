@@ -50,7 +50,6 @@
 <script>
 import { defaultProps, validateProps } from '/src/utils/fields.js'
 import { getTableAutocomplete } from '/src/api/autocomplete'
-import { toast } from "vue3-toastify"
 
 export default {
   props: {
@@ -94,6 +93,17 @@ export default {
       this.updateChoices()
     },
     updateChoices() {
+
+      var existedChoices = []
+      if (this.value) {
+        if (this.isMany()) {
+          existedChoices = this.value
+        }
+        else {
+          existedChoices = [this.value]
+        }
+      }
+
       getTableAutocomplete({
         group: this.categorySchema.group,
         category: this.categorySchema.category,
@@ -103,7 +113,7 @@ export default {
         field_slug: this.fieldSlug,
         is_filter: this.isFilter,
         form_data: this.formData || {},
-        existed_choices: this.isMany() ? this.value : this.value ? [this.value] : [],
+        existed_choices: existedChoices,
         action_name: this.actionName,
       }).then(response => {
         this.choices = response.data.results

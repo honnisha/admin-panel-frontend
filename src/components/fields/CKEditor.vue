@@ -16,12 +16,6 @@ import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo } fro
 
 import 'ckeditor5/ckeditor5.css';
 
-const requiredFields = {
-  wysiwyg: {type: Boolean, required: false},
-  multilined: {type: Boolean, required: false},
-  tag_style: {type: String, required: false},
-}
-
 export default {
   components: {
     ckeditor: CKEditor.component
@@ -41,7 +35,7 @@ export default {
     }
   },
   created() {
-    validateProps(this, requiredFields)
+    validateProps(this)
     this.value = this.field.initial
   },
   methods: {

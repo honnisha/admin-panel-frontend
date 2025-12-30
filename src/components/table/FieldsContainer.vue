@@ -155,7 +155,7 @@ import DateTimeField from '/src/components/fields/DateTime.vue'
 import ArrayField from '/src/components/fields/ArrayField.vue'
 
 import TinyMCEField from '/src/components/fields/TinyMCE/index.vue'
-// import CKEditor from '/src/components/fields/CKEditor.vue'
+import CKEditor from '/src/components/fields/CKEditor.vue'
 
 const wysiwyg = TinyMCEField;
 
@@ -200,7 +200,8 @@ export default {
       if (['array'].indexOf(field.type) !== -1) return ArrayField
 
       if (['field', 'string', 'email', 'url', 'slug'].indexOf(field.type) !== -1) {
-        if (field.wysiwyg) return wysiwyg
+        if (field.tinymce) return TinyMCEField
+        if (field.ckeditor) return CKEditor
         return StringField
       }
       if (field.type === 'json') {
@@ -248,7 +249,7 @@ export default {
 
       for (const slug of Object.keys(this.tableSchema.fields)) {
         const target_field = this.$refs[this.getRefString(slug)]
-        if (target_field === undefined) continue
+        if (!target_field) continue
 
         // Update all other fields
         if (field_slug !== slug) {

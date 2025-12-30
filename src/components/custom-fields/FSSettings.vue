@@ -99,7 +99,6 @@ import { VNumberInput } from 'vuetify/labs/VNumberInput'
 import { defaultProps, validateProps } from '/src/utils/fields.js'
 import request from '/src/utils/request'
 import { config_dataset } from '/src/utils/settings'
-import { toast } from "vue3-toastify"
 
 export default {
   props: {
@@ -173,24 +172,16 @@ export default {
         this.freespinsInfo = response.data
         this.loadData = false
       }).catch(error => {
-        if (error.response && error.response.data && error.response.data.errors) {
-          const errorObj = error.response.data.errors[0]
-          if (errorObj.message) {
-            this.errorMessage = errorObj.message
-          } else {
-            this.errorMessage = errorObj
-          }
-        }
-        else {
-          toast(error, {
-            "limit": 3,
-            "theme": "auto",
-            "type": "error",
-            "position": "top-center",
-            "dangerouslyHTMLString": true
-          })
-        }
         this.loadData = false
+
+        const errorResult = this.$handleError(error)
+        if (errorResult.fieldErrors) {
+          this.$refs.fieldscontainer.updateErrors(errorResult.fieldErrors)
+        }
+        if (errorResult.persistentMessage) {
+          this.persistentMessageDialog = true
+          this.persistentMessage = errorResult.persistentMessage
+        }
       })
     },
     onChange(config_slug, value) {

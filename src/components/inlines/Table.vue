@@ -142,13 +142,8 @@ export default {
         this.listLoading = false
       }).catch(error => {
         this.listLoading = false
-        console.error(`Get inline data error from ${url}:` + error, this.pageInfo)
-        toast(error, {
-          "theme": "auto",
-          "type": "error",
-          "position": "top-center",
-          "dangerouslyHTMLString": true
-        })
+
+        const errorResult = this.$handleError(error)
       })
     },
     getLength() {

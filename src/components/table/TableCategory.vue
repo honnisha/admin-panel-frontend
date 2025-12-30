@@ -59,7 +59,11 @@
           :class="{ 'table-cell': true, 'table-link': index === 0 && canRetrieve() }"
         >
 
-          <template v-if="header.type === 'related'">
+          <template v-if="header.type === 'string'">
+            {{ stripHtml(item[header.key]) }}
+          </template>
+
+          <template v-else-if="header.type === 'related'">
             <v-tooltip v-if="item[header.key]">
               #{{ item[header.key].key }}
               <template v-slot:activator="{ props }">
@@ -608,6 +612,11 @@ export default {
     createdEvent() {
       this.serializeQuery()
       this.getListData()
+    },
+    stripHtml(html) {
+      const div = document.createElement('div')
+      div.innerHTML = html
+      return div.textContent?.trim() ?? ''
     },
   },
 }

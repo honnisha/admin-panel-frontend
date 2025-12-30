@@ -44,6 +44,7 @@ import { categoryUrl } from '/src/api/scheme'
 export default {
   props: {
     adminSchema: {type: Object, required: true},
+    settings: {type: Object, required: true},
   },
   data() {
     return {
@@ -54,7 +55,7 @@ export default {
     $route: {
       immediate: true,
       handler(to, from) {
-        document.title = `${this.$t('mainPage')} | ${config_dataset.title}`
+        document.title = `${this.$t('mainPage')} | ${this.settings?.title}`
       }
     },
   },

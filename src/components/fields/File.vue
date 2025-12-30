@@ -35,7 +35,6 @@
 
 <script>
 import { defaultProps, validateProps } from '/src/utils/fields.js'
-import { toast } from "vue3-toastify"
 
 const requiredFields = {}
 
@@ -105,15 +104,7 @@ export default {
         }
         this.$emit('changed', newVal)
       }).catch(error => {
-        const message = `${this.fieldSlug} convert error: ${error}`;
-        console.error(message)
-        toast(message, {
-          "limit": 3,
-          "theme": "auto",
-          "type": "error",
-          "position": "top-center",
-          "dangerouslyHTMLString": true
-        })
+        const errorResult = this.$handleError(error)
       })
     },
     isImage() {

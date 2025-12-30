@@ -110,7 +110,6 @@
 </template>
 
 <script>
-import { toast } from "vue3-toastify";
 import { getSettings } from '/src/api/settings'
 import { login } from '/src/api/user'
 
@@ -135,7 +134,7 @@ export default {
     $route: {
       immediate: true,
       handler(to, from) {
-        document.title = `${this.$t('login')} | Admin panel`
+        document.title = `${this.$t('login')} | Admin Panel`
       }
     },
   },
