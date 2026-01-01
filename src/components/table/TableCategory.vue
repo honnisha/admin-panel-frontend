@@ -29,6 +29,12 @@
             width="440"
           >
             <div class="navbar-filters">
+              <div class="filters-drawer-header">
+                <v-btn
+                  icon="mdi-close"
+                  @click="filtersOpen = false"
+                />
+              </div>
               <Filters
                 :category-schema="categorySchema"
                 :filters-init="filters"
@@ -259,7 +265,7 @@
           </template>
         </v-tooltip>
 
-        <v-label class="info">{{ getTotalCount() }}</v-label>
+        <v-label class="info" v-if="!isNarrow">{{ getTotalCount() }}</v-label>
 
         <v-pagination
           class="list-pagination"

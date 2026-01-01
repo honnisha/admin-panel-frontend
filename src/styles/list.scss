@@ -7,6 +7,12 @@
         vertical-align: middle;
     }
 
+    @media (max-width: $screen-narrow) {
+        .list-above-block {
+            margin: 5px !important;
+            background-color: rgba(var(--v-theme-on-surface), 0.005) !important;
+        }
+    }
     .list-above-block {
         margin: 10px;
         display: flex;
@@ -149,5 +155,54 @@
 .login-form {
     .v-input__details {
         padding: 3px 16px;
+    }
+}
+
+// Хлебные крошки
+.v-app-bar .v-breadcrumbs {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.v-app-bar .v-breadcrumbs-item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.v-app-bar > *:not(.v-breadcrumbs) {
+    flex-shrink: 0;
+}
+
+// Оставить только последний элемент навигации
+@media (max-width: $screen-mobile-wide) {
+    .v-breadcrumbs li.v-breadcrumbs-item {
+        display: none;
+    }
+
+    .v-breadcrumbs li.v-breadcrumbs-item:last-of-type {
+        display: inline-flex;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .v-breadcrumbs li.v-breadcrumbs-item:nth-last-child(3) {
+        display: inline-flex;
+    }
+
+    .v-breadcrumbs li.v-breadcrumbs-item:nth-last-child(3) .v-breadcrumbs-item--link {
+        font-size: 0;
+    }
+
+    .v-breadcrumbs li.v-breadcrumbs-item:nth-last-child(3) .v-breadcrumbs-item--link::before {
+        content: '\F0141';
+        font-family: 'Material Design Icons';
+        font-size: 20px;
+        line-height: 1;
+    }
+
+    .v-breadcrumbs-divider {
+        display: none;
     }
 }

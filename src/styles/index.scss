@@ -1,5 +1,6 @@
 $model-form-width: 1200px;
 $screen-narrow: 1280px;
+$screen-mobile-wide: 640px;
 
 @import '/src/styles/list.scss';
 @import '/src/styles/edit.scss';
@@ -86,6 +87,9 @@ body {
         vertical-align: top;
         margin: 0px 10px 5px 0px;
     }
+    [class*="theme--"][class*="dark" i] .v-card-text {
+        background-color: rgba(var(--v-theme-on-surface), 0.05) !important;
+    }
 
     .v-list {
         padding: 0px;
@@ -133,6 +137,10 @@ body {
         margin: 2px;
     }
 }
+.filters-drawer-header {
+    margin-bottom: 10px;
+}
+
 .table-button {
     display: inline-flex;
     margin: 2px;

@@ -40,7 +40,16 @@ export default {
     return {
       drawer: null,
       path: [],
+      isNarrow: false,
     }
+  },
+  mounted () {
+    const mq = window.matchMedia('(max-width: 1280px)')
+    this.isNarrow = mq.matches
+
+    mq.addEventListener('change', e => {
+      this.isNarrow = e.matches
+    })
   },
   watch: {
     $route() {
