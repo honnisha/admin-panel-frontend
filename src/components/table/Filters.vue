@@ -10,6 +10,7 @@
         variant="solo"
         prepend-inner-icon="mdi-magnify"
         :label="$t('search')"
+        v-on:keydown.enter.prevent="applyFilter"
       >
         <template #append-inner>
           <v-tooltip location="bottom">

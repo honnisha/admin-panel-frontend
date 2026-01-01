@@ -351,3 +351,29 @@ body {
 .v-overlay[class*="dark" i] .v-overlay__scrim {
     background-color: rgba(0, 0, 0, 0.8) !important;
 }
+
+.filters-drawer {
+  display: none;
+}
+
+@media (max-width: 1280px) {
+  .filters-inline {
+    display: none;
+  }
+
+  .filters-drawer {
+    display: block;
+  }
+}
+
+.v-badge {
+  pointer-events: auto;
+}
+
+.v-badge .v-btn {
+  pointer-events: auto;
+}
+
+.navbar-filters {
+    margin: 10px;
+}

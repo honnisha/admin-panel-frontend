@@ -3,29 +3,67 @@
 
     <div class="list-above-block">
       <div class="header-row-filters">
-        <Filters
-          v-if="hasFilters()"
-          :category-schema="categorySchema"
-          :filters-init="filters"
-          :search-init="search"
-          @filtered="handleFilter"
-          :loading="listLoading"
+        <div class="filters-inline">
+          <Filters
+            v-if="hasFilters()"
+            :category-schema="categorySchema"
+            :filters-init="filters"
+            :search-init="search"
+            @filtered="handleFilter"
+            :loading="listLoading"
+            :search-enabled="getTableInfo().search_enabled"
+            :fields-info="getTableInfo().table_filters.fields"
+            :search-help="getTableInfo().search_help"
+          />
+        </div>
 
-          :search-enabled="getTableInfo().search_enabled"
-          :fields-info="getTableInfo().table_filters.fields"
-          :search-help="getTableInfo().search_help"
-        />
+        <div class="filters-drawer">
+          <v-navigation-drawer
+            v-model="filtersOpen"
+            location="right"
+            temporary
+            class="filters-drawer-panel"
+            width="440"
+          >
+            <div class="navbar-filters">
+              <Filters
+                :category-schema="categorySchema"
+                :filters-init="filters"
+                :search-init="search"
+                @filtered="handleFilter"
+                :loading="listLoading"
+                :search-enabled="getTableInfo().search_enabled"
+                :fields-info="getTableInfo().table_filters.fields"
+                :search-help="getTableInfo().search_help"
+              />
+            </div>
+          </v-navigation-drawer>
+
+          <v-badge
+            v-if="getFiltersCount() > 0"
+            :content="getFiltersCount()"
+            @click="filtersOpen = true"
+          >
+            <v-btn
+              icon="mdi-filter-variant"
+            />
+          </v-badge>
+
+          <v-btn
+            v-else
+            icon="mdi-filter-variant"
+            @click="filtersOpen = true"
+          />
+
+        </div>
       </div>
 
       <div class="header-row-actions">
         <div class="table-button" v-if="canCreate()">
           <FormCreate
-            v-if="canCreate()"
             :title="categorySchema.title"
-
             :admin-schema="adminSchema"
             :category-schema="categorySchema"
-
             @created="createdEvent"
           />
         </div>
@@ -297,6 +335,7 @@ export default {
   },
   data() {
     return {
+      filtersOpen: false,
       loading: false,
       pageData: {},
       pageInfo: {},
@@ -617,6 +656,16 @@ export default {
       return div.textContent?.trim() ?? ''
     },
     truncate,
+    getFiltersCount() {
+      var count = 0
+      if (this.search) {
+        count += 1
+      }
+      if (!this.filters) {
+        count += Object.values(this.filters).filter(v => v !== null && v !== undefined).length
+      }
+      return count
+    },
   },
 }
 </script>
