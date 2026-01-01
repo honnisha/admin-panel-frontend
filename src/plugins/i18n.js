@@ -5,6 +5,11 @@ import { getLang } from '/src/utils/auth'
 
 const messages = {
   en: {
+    validation: {
+      required: 'Поле обязательно для заполнения',
+      min_length: 'Значение должно содержать не менее {min_length} символов',
+      max_length: 'Значение должно содержать не более {max_length} символов',
+    },
     sectionSettings: 'Section settings',
     notFoundPageHeadline: 'Page not found',
     notFoundPageTitle: 'The page you were looking for does not exist',

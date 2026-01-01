@@ -64,21 +64,13 @@
           </template>
 
           <template v-else-if="header.type === 'related'">
-            <v-tooltip v-if="item[header.key]">
-              #{{ item[header.key].key }}
-              <template v-slot:activator="{ props }">
-                <v-chip size="small" v-bind="props">{{ item[header.key].title }}</v-chip>
-              </template>
-            </v-tooltip>
-          </template>
-
-          <template v-else-if="header.type === 'primarymany'">
-            <template v-if="item[header.key]">
-              <v-chip
-                v-for="tag in item[header.key]"
-                size="header.field.size || 'small'"
-                v-bind:key="tag"
-              >{{ tag.text }}</v-chip>
+            <template v-for="rel in formatRelated(item[header.key])" :key="rel.key">
+              <v-tooltip>
+                #{{ rel.key }} {{ rel.title }}
+                <template v-slot:activator="{ props }">
+                  <v-chip size="small" v-bind="props">{{ truncate(rel.title, 30) }}</v-chip>
+                </template>
+              </v-tooltip>
             </template>
           </template>
 
@@ -288,6 +280,7 @@ import { applyFiltersToQuery, extractFiltersFromQuery } from '/src/utils/filters
 import { CategorySchema, detailUrl } from '/src/api/scheme'
 import { getLocalSettings, setLocalSettings } from '/src/utils/settings'
 import { getDataList, sendTableAction, downloadContent } from '/src/api/table'
+import { truncate } from '/src/utils'
 import moment from 'moment'
 import { toast } from "vue3-toastify"
 import FieldsContainer from '/src/components/table/FieldsContainer.vue'
@@ -609,6 +602,11 @@ export default {
       if (typeof value === 'object') return value.title
       return value
     },
+    formatRelated(value) {
+      if (!value) { return [] }
+      if (Array.isArray(value)) { return value }
+      return [value]
+    },
     createdEvent() {
       this.serializeQuery()
       this.getListData()
@@ -618,6 +616,7 @@ export default {
       div.innerHTML = html
       return div.textContent?.trim() ?? ''
     },
+    truncate,
   },
 }
 </script>

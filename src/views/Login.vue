@@ -52,7 +52,7 @@
                     </v-alert>
                 </template>
 
-                <form>
+                <v-form class="login-form" ref="loginForm" validate-on="submit">
                   <v-text-field
                     density="default"
                     :hideDetails="false"
@@ -60,7 +60,7 @@
                     :disabled="loading"
 
                     v-model="username"
-                    :rules="[rules.required, rules.min]"
+                    :rules="[rules.required, rules.min_length(5)]"
                     :label="$t('username')"
                     required
                     @keydown.enter.prevent="login"
@@ -71,7 +71,7 @@
                     :disabled="loading"
 
                     v-model="password"
-                    :rules="[rules.required, rules.min]"
+                    :rules="[rules.required, rules.min_length(5)]"
                     :label="$t('password')"
                     :type="show ? 'text' : 'password'"
                     :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
@@ -79,24 +79,23 @@
                     @click:append="show = !show"
                     @keydown.enter.prevent="login"
                   ></v-text-field>
+                </v-form>
 
-                  <v-card
-                    color="primary"
-                    variant="outlined"
-                    class="mx-auto login-description"
-                    v-if="getLoginGreetingsMessage()"
-                  >
-                    <v-card-item>
-                      <div v-html="getLoginGreetingsMessage()">
-                      </div>
-                    </v-card-item>
-                  </v-card>
+                <v-card
+                  color="primary"
+                  variant="outlined"
+                  class="mx-auto login-description"
+                  v-if="getLoginGreetingsMessage()"
+                >
+                  <v-card-item>
+                    <div v-html="getLoginGreetingsMessage()">
+                    </div>
+                  </v-card-item>
+                </v-card>
 
-                  <v-row justify="end" no-gutters>
-                    <v-btn @click="login" :disabled="loading">{{  $t('login') }}</v-btn>
-                  </v-row>
-
-                </form>
+                <v-row justify="end" no-gutters>
+                  <v-btn @click="login" :disabled="loading">{{  $t('login') }}</v-btn>
+                </v-row>
 
               </v-card-text>
             </v-card>
@@ -111,6 +110,7 @@
 
 <script>
 import { getSettings } from '/src/api/settings'
+import { createRules } from '/src/utils/validationRules'
 import { login } from '/src/api/user'
 
 import Settings from '/src/components/Settings.vue'
@@ -120,9 +120,7 @@ import Loader from '/src/components/Loader.vue'
 export default {
   data () {
     return {
-      rules: {
-        required: value => !!value || 'Required.',
-      },
+      rules: {},
       username: '',
       password: '',
       show: false,
@@ -139,6 +137,8 @@ export default {
     },
   },
   async created() {
+    this.rules = createRules(this.$t)
+
     this.settingsLoading = true
 
     getSettings().then(settings => {
@@ -160,11 +160,6 @@ export default {
     })
   },
   methods: {
-    async validate () {
-      const { valid } = await this.$refs.form.validate()
-
-      if (valid) alert('Form is valid')
-    },
     getLogo() {
       return this.settings.logo_image
     },
@@ -177,8 +172,9 @@ export default {
     getDescription() {
       return this.settings.description
     },
-    login() {
-      if (!this.username && !this.password) return
+    async login() {
+      const isValid = await this.$refs.loginForm.validate()
+      if (!isValid.valid) return
 
       this.loading = true
       login(this.username, this.password).then(() => {

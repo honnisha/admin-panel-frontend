@@ -115,6 +115,8 @@
                   :relation-name-filter="relationNameFilter"
                   :filter-id="filterId"
 
+                  :error="getError(field_slug)"
+
                   @changed="value => _updateValue(value, field_slug)"
                 />
                 <template v-else>
@@ -122,9 +124,9 @@
                 </template>
               </template>
 
-              <template v-if="field_errors && field_errors[field_slug]">
+              <template v-if="getError(field_slug)">
                 <p class="form-error">
-                  {{ formatError(field_errors[field_slug]) }}
+                  {{ formatError(getError(field_slug)) }}
                 </p>
               </template>
 
@@ -253,7 +255,14 @@ export default {
 
         // Update all other fields
         if (field_slug !== slug) {
-          target_field[0].updateFormData(this.formData)
+          const field = target_field[0]
+
+          if (!field) {
+            // Не понимаю почему поля иногда нет, но работает
+            return
+          }
+
+          field.updateFormData(this.formData)
         }
       }
       this.$emit('changed', this.formData)
@@ -273,7 +282,12 @@ export default {
         return this.$t(error.code)
       }
       return error.message
-    }
+    },
+    getError(field_slug) {
+      if (this.field_errors) {
+        return this.field_errors[field_slug]
+      }
+    },
   },
 }
 </script>
