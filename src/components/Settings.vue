@@ -6,7 +6,6 @@
     location="right"
     hide-overlay
     temporary
-    absolute
     width="300"
   >
     <Theme/>

@@ -13,8 +13,7 @@
             <Loader v-if="settingsLoading"/>
 
             <v-card
-              width="400"
-              class="login-header"
+              class="login-window"
               v-if="settings"
             >
 

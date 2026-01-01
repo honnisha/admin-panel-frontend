@@ -3,7 +3,9 @@
 
     <div class="list-above-block">
       <div class="header-row-filters">
-        <div class="filters-inline">
+
+        <!-- Вариант фильтров под широкие экраны -->
+        <div v-if="!isNarrow" class="filters-inline">
           <Filters
             v-if="hasFilters()"
             :category-schema="categorySchema"
@@ -17,7 +19,8 @@
           />
         </div>
 
-        <div class="filters-drawer">
+        <!-- Фильтры под узкие -->
+        <div v-else class="filters-drawer">
           <v-navigation-drawer
             v-model="filtersOpen"
             location="right"
@@ -181,31 +184,68 @@
 
     <div class="table-bottom">
 
+      <!-- Счётчик выбранных элеменов -->
       <div class="table-bottom-cell" v-if="hasActons()">
-        <v-label class="info">{{ $t('selected') }} <p class="selected-count">{{ getSelectedCount()}}/{{ getTotalCount() }}</p></v-label>
+        <v-label class="info">
+          <template v-if="!isNarrow">
+            {{ $t('selected') }}
+          </template>
+          <p class="selected-count">{{ getSelectedCount()}}/{{ getTotalCount() }}</p>
+        </v-label>
       </div>
 
+      <!-- Админские действия -->
       <div class="table-bottom-cell actions-cell">
-        <template
-          v-for="(action_info, key) in categorySchema.getTableInfo().actions"
-          v-bind:key="key"
-        >
-          <v-btn
-            size="small"
-            class="action-button"
-            :variant="action_info.variant || 'flat'"
-            :prepend-icon="action_info.icon"
-            :base-color="action_info.base_color || 'secondary'"
-            @click="pressAction(action_info, key)"
-            :disabled="actionLoading"
+
+        <!-- Выпадающий список для узких экранов -->
+        <template v-if="!isNarrow">
+          <template
+            v-for="(action_info, key) in categorySchema.getTableInfo().actions"
+            v-bind:key="key"
           >
-            {{ action_info.title }}
-          </v-btn>
+            <v-btn
+              size="small"
+              class="action-button"
+              :variant="action_info.variant || 'flat'"
+              :prepend-icon="action_info.icon"
+              :base-color="action_info.base_color || 'secondary'"
+              @click="pressAction(action_info, key)"
+              :disabled="actionLoading"
+            >
+              {{ action_info.title }}
+            </v-btn>
+          </template>
         </template>
+
+        <!-- Кнопки для широких экранов -->
+        <v-menu v-else>
+          <template #activator="{ props }">
+            <v-btn
+              class="action-button-opener"
+              v-bind="props"
+              color="primary"
+              icon="mdi-dots-vertical"
+              :disabled="actionLoading"
+            />
+          </template>
+
+          <v-list>
+            <v-list-item
+              v-for="(action_info, key) in categorySchema.getTableInfo().actions"
+              :key="key"
+              @click="pressAction(action_info, key)"
+            >
+              <v-list-item-title>
+                {{ action_info.title }}
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+
       </div>
 
       <div class="table-bottom-cell">
-
+        <!-- Выпадающий список кол-ва элементов на странице -->
         <v-tooltip location="start" :text="$t('itemsPerPage')">
           <template v-slot:activator="{ props }">
             <div v-bind="props">
@@ -225,10 +265,10 @@
           class="list-pagination"
           v-model="pageInfo.page"
           :length="getPagesLength()"
-          :total-visible="5"
+          :total-visible="isNarrow? 1 : 5"
           size="40"
           @update:modelValue="value => changePagination(value)"
-        ></v-pagination>
+        />
       </div>
 
     </div>
@@ -354,7 +394,17 @@ export default {
 
       persistentMessageDialog: false,
       persistentMessage: null,
+
+      isNarrow: false,
     }
+  },
+  mounted () {
+    const mq = window.matchMedia('(max-width: 1280px)')
+    this.isNarrow = mq.matches
+
+    mq.addEventListener('change', e => {
+      this.isNarrow = e.matches
+    })
   },
   created() {
     this.headers = this.getHeaders()
@@ -661,7 +711,7 @@ export default {
       if (this.search) {
         count += 1
       }
-      if (!this.filters) {
+      if (this.filters) {
         count += Object.values(this.filters).filter(v => v !== null && v !== undefined).length
       }
       return count

@@ -1,7 +1,14 @@
 $model-form-width: 1200px;
+$screen-narrow: 1280px;
 
 @import '/src/styles/list.scss';
 @import '/src/styles/edit.scss';
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
 
 .gradient-bg {
     background: rgb(var(--v-theme-darken2));
@@ -104,7 +111,7 @@ body {
         margin: 2px;
         width: 300px;
     }
-    @media (max-width: 1280px) {
+    @media (max-width: $screen-narrow) {
         .filter-element {
             width: 200px;
         }
@@ -190,7 +197,9 @@ body {
 .project-logo-text {
     margin: 5px;
 }
-.login-header {
+.login-window {
+    max-width: 400px;
+    min-width: 300px;
     background-color: rgb(var(--v-theme-darken3)) !important;
 }
 .create-dialog {
@@ -356,7 +365,7 @@ body {
   display: none;
 }
 
-@media (max-width: 1280px) {
+@media (max-width: $screen-narrow) {
   .filters-inline {
     display: none;
   }
