@@ -27,10 +27,10 @@
       >
         <template v-slot:activator="{ props }">
           <v-list-item
+            :density="navbarDensity()"
             v-bind="props"
             :title="group.title"
             :prepend-icon="group.icon"
-            density="default"
           ></v-list-item>
         </template>
 
@@ -44,6 +44,7 @@
           :prepend-icon="category.icon"
           :title="category.title"
           :to="categoryUrl(group_slug, category_slug)"
+          :density="navbarDensity()"
         ></v-list-item>
       </v-list-group>
     </v-list>
@@ -82,6 +83,9 @@ export default {
     },
     getLogo() {
       return this.settings.logo_image
+    },
+    navbarDensity() {
+      return this.settings.navbar_density || "default"
     },
     getTitle() {
       return this.settings.title

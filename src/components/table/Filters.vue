@@ -4,26 +4,23 @@
 
     <div class="filter-element" v-if="searchEnabled">
 
-      <v-tooltip
-        location="bottom"
-        :text="searchHelp"
-        :disabled="!searchHelp"
+      <v-text-field
+        v-model="search"
+        density="compact"
+        variant="solo"
+        prepend-inner-icon="mdi-magnify"
+        :label="$t('search')"
       >
-        <template v-slot:activator="{ props }">
-          <v-text-field
-            v-bind="props"
-
-            density="compact"
-            variant="solo"
-            prepend-inner-icon="mdi-magnify"
-
-            v-model="search"
-            :clearable="true"
-            :label="$t('search')"
-            @keydown.enter.prevent="applyFilter"
-          />
+        <template #append-inner>
+          <v-tooltip location="bottom">
+            <template #activator="{ props }">
+              <v-icon v-bind="props" icon="mdi-help-circle-outline" v-if="searchHelp"/>
+              <v-icon icon="mdi-magnify" />
+            </template>
+            <div v-html="searchHelpHtml()"></div>
+          </v-tooltip>
         </template>
-      </v-tooltip>
+      </v-text-field>
 
     </div>
 
@@ -134,6 +131,9 @@ export default {
     applyFilter() {
       if (this.loading) return
       this.$emit('filtered', normalizeFilters(this.filters), this.search)
+    },
+    searchHelpHtml () {
+      return this.searchHelp.replace(/\n/g, '<br>')
     },
   },
 }
