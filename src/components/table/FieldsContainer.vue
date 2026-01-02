@@ -26,7 +26,7 @@
       </template>
     </template>
 
-    <v-tabs-window v-model="tab" class="fields-content">
+    <v-tabs-window v-model="tab">
       <v-tabs-window-item
         v-for="(groupInfo, tab_id) in getGroups()"
         :key="groupInfo.title"
@@ -35,7 +35,7 @@
       >
         <div v-for="(field, field_slug) in tableSchema.fields" v-bind:key="field_slug">
 
-          <v-row class="fields-cell">
+          <v-row class="field-cell">
             <div class="label-col">
               <v-list-subheader>
                 <p class="form-title">{{ field.label }}</p> <p v-if="field.required" class="required-title">*</p>

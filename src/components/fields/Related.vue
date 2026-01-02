@@ -1,49 +1,115 @@
 <template>
 
-  <v-autocomplete
-    :density="density"
-    :variant="variant"
-    :clearable="true"
-    v-model="value"
-    :label="field.label"
-    :messages="field.help_text || []"
-    :disabled="isReadOnly()"
-    :placeholder="$t('inputStringForSearch')"
+  <template v-if="!isDualList()">
+    <v-autocomplete
+      :density="density"
+      :variant="variant"
+      :clearable="true"
+      v-model="value"
+      :label="field.label"
+      :messages="field.help_text || []"
+      :disabled="isReadOnly()"
+      :placeholder="$t('inputStringForSearch')"
 
-    :items="choices"
-    :multiple="isMany()"
-    :loading="loading || apiLoading"
-    chips
-    closable-chips
-    persistent-hint
-    no-filter
-    hide-selected
+      :items="choices"
+      :multiple="isMany()"
+      :loading="loading || apiLoading"
+      chips
+      closable-chips
+      persistent-hint
+      no-filter
+      hide-selected
 
-    :return-object="true"
-    item-value="key"
-    item-title="title"
+      :return-object="true"
+      item-value="key"
+      item-title="title"
 
-    :append-inner-icon="isMany() ? 'mdi-relation-many-to-many' : 'mdi-relation-many-to-one'"
+      :append-inner-icon="isMany() ? 'mdi-relation-many-to-many' : 'mdi-relation-many-to-one'"
 
-    :search="search"
-    @update:search="updateSearch"
-    @update:modelValue="onChange"
-  >
-    <template v-slot:chip="{ props, item }">
-      <v-chip
-        class="autocomplete-chip"
-        v-bind="props"
-        :text="item.raw.title"
-      ></v-chip>
-    </template>
+      :search="search"
+      @update:search="updateSearch"
+      @update:modelValue="onChange"
+    >
+      <template v-slot:chip="{ props, item }">
+        <v-chip
+          class="autocomplete-chip"
+          v-bind="props"
+          :text="item.raw.title"
+        ></v-chip>
+      </template>
 
-    <template v-slot:item="{ props, item }">
-      <v-list-item
-        v-bind="props"
-        :title="item.raw.title"
-      ></v-list-item>
-    </template>
-  </v-autocomplete>
+      <template v-slot:item="{ props, item }">
+        <v-list-item
+          v-bind="props"
+          :title="item.raw.title"
+        ></v-list-item>
+      </template>
+    </v-autocomplete>
+  </template>
+
+  <template v-else>
+    <v-card
+      variant="elevated"
+      class="dial-list-card"
+      :loading="loading || apiLoading"
+    >
+
+      <v-card-text>
+        <v-row>
+          <v-col cols="6 dial-list-col">
+            <v-text-field
+              v-model="search"
+              :label="$t('inputStringForSearch')"
+              @update:modelValue="updateSearch"
+              density="compact"
+            />
+
+            <v-card
+              style="height: 320px;"
+            >
+              <v-list
+                style="height: 100%; overflow-y: auto;"
+                density="compact"
+                :disabled="apiLoading || loading"
+                class="dial-list-list-card"
+              >
+                <v-list-item
+                  v-for="item in leftChoices"
+                  :key="item.key"
+                  :title="item.title"
+                  @click="addItem(item)"
+                />
+              </v-list>
+            </v-card>
+          </v-col>
+
+          <v-col cols="6 dial-list-col">
+            <div class="dial-list-selected-text text-caption">
+              {{ $t('selected') }}
+            </div>
+
+            <v-card
+              style="height: 320px;"
+            >
+              <v-list
+                style="height: 100%; overflow-y: auto;"
+                density="compact"
+                :disabled="apiLoading || loading"
+                class="dial-list-list-card"
+              >
+                <v-list-item
+                  v-for="item in rightChoices"
+                  :key="item.key"
+                  :title="item.title"
+                  @click="removeItem(item)"
+                />
+              </v-list>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
+  </template>
 
 </template>
 
@@ -74,6 +140,15 @@ export default {
       this.updateChoices()
     }
   },
+  computed: {
+    rightChoices() {
+      return this.value || []
+    },
+    leftChoices() {
+      const selectedKeys = new Set((this.value || []).map(i => i.key))
+      return this.choices.filter(i => !selectedKeys.has(i.key))
+    },
+  },
   methods: {
     isReadOnly() {
       return this.readOnly
@@ -93,6 +168,7 @@ export default {
       this.updateChoices()
     },
     updateChoices() {
+      this.apiLoading = true
 
       var existedChoices = []
       if (this.value) {
@@ -137,6 +213,20 @@ export default {
     },
     isMany() {
       return this.field.many
+    },
+    isDualList() {
+      return this.field.dual_list && this.isMany() && !this.isFilter
+    },
+    addItem(item) {
+      if (!this.value) {
+        this.value = []
+      }
+      this.value.push(item)
+      this.onChange(this.value)
+    },
+    removeItem(item) {
+      this.value = this.value.filter(i => i.key !== item.key)
+      this.onChange(this.value)
     },
   },
 }
