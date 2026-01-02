@@ -190,6 +190,9 @@
 .dial-list-card .dial-list-col {
     padding: 3px;
 }
+.dial-list-card .dial-list-col .v-field-label {
+        white-space: nowrap;
+}
 [class*="theme--"][class*="dark" i]
 .dial-list-card .dial-list-list-card {
     background-color: rgba(var(--v-theme-on-surface), 0.02) !important;

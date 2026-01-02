@@ -26,7 +26,7 @@
             location="right"
             temporary
             class="filters-drawer-panel"
-            width="440"
+            width="320"
           >
             <div class="navbar-filters">
               <div class="filters-drawer-header">
