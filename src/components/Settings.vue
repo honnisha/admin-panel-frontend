@@ -7,6 +7,7 @@
     hide-overlay
     temporary
     width="300"
+    :touchless="true"
   >
     <Theme/>
 

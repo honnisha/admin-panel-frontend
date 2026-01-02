@@ -31,6 +31,7 @@
             v-bind="props"
             :title="group.title"
             :prepend-icon="group.icon"
+            :subtitle="group.description"
           ></v-list-item>
         </template>
 
@@ -43,6 +44,7 @@
           :key="category_slug"
           :prepend-icon="category.icon"
           :title="category.title"
+          :subtitle="category.description"
           :to="categoryUrl(group_slug, category_slug)"
           :density="navbarDensity()"
         ></v-list-item>
